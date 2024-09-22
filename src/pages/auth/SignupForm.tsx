@@ -14,10 +14,11 @@ import { Input } from "@/components/ui/input";
 
 ("use client");
 
-import { Link, useSubmit } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { signUpValidationSchema } from "@/lib/validations";
 import { z } from "zod";
 import Loader from "@/components/shared/Loader";
+import { createUser } from "@/lib/appwrite/api";
 
 const SignUpForm = () => {
   const form = useForm<z.infer<typeof signUpValidationSchema>>({
@@ -30,12 +31,13 @@ const SignUpForm = () => {
     },
   });
 
-  const submit = useSubmit();
   const isLoading = false; //--replace with "isLoading from submit.loading"
 
-  function onSubmit(values: z.infer<typeof signUpValidationSchema>) {
-    console.log(values);
-    //submit();
+  async function onSubmit(values: z.infer<typeof signUpValidationSchema>) {
+
+    const newUser = await createUser(values);
+    console.log(newUser);
+
   }
   return (
     <div className="sm:w-420 flex-center flex-col">
