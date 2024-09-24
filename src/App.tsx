@@ -4,8 +4,8 @@ import SignInForm from "./pages/auth/SigninForm";
 import SignUpForm from "./pages/auth/SignupForm";
 import { Home } from "./pages";
 import RootLayout from "./layouts/RootLayout";
-import { Button } from "@/components/ui/button";
 import AuthLayout from "./layouts/AuthLayout";
+import { Toaster } from "@/components/ui/toaster";
 
 const router = createBrowserRouter([
   {
@@ -26,6 +26,7 @@ function App() {
   return (
     <main className="flex h-screen">
       <RouterProvider router={router} />
+      <Toaster />
     </main>
   );
 }
