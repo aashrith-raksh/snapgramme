@@ -14,15 +14,34 @@ import { Input } from "@/components/ui/input";
 
 ("use client");
 
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { signUpValidationSchema } from "@/lib/validations";
 import { z } from "zod";
 import Loader from "@/components/shared/Loader";
-import { createUserAccount } from "@/lib/appwrite/api";
 import { useToast } from "@/hooks/use-toast";
+import {
+  useCreateUserAccount,
+  useSignInAccount,
+} from "@/lib/react-query/queriesAndMutations";
+import { useUserContext } from "@/contexts/AuthContext";
 
 const SignUpForm = () => {
   const { toast } = useToast();
+  const {
+    mutateAsync: createUserAccount,
+    isPending: isCreatingUser,
+    isError: isErrorInCreatingUserAccount,
+  } = useCreateUserAccount();
+
+  const {
+    mutateAsync: signInUser,
+    isError: isErrorInSignIn,
+  } = useSignInAccount();
+
+  const { checkAuthUser } = useUserContext();
+
+  const navigate = useNavigate();
+
   const form = useForm<z.infer<typeof signUpValidationSchema>>({
     resolver: zodResolver(signUpValidationSchema),
     defaultValues: {
@@ -33,20 +52,50 @@ const SignUpForm = () => {
     },
   });
 
-  const isLoading = false; //--replace with "isLoading from submit.loading"
-
   async function onSubmit(values: z.infer<typeof signUpValidationSchema>) {
     const newUserInDB = await createUserAccount(values);
 
-    if (!newUserInDB) {
+    if (isErrorInCreatingUserAccount || !newUserInDB) {
       toast({
         variant: "destructive",
         title: "Sing up failed. Please try again.",
       });
       return;
     }
-    console.log(newUserInDB);
+    console.log("User saved to DB successfully");
+
+    const session = await signInUser({
+      email: values.email,
+      password: values.password,
+    });
+
+    if (isErrorInSignIn || !session) {
+      console.log("Invalid session");
+      toast({
+        variant: "destructive",
+        title: "Sing in failed. Please try again.",
+      });
+      return;
+    }
+
+    console.log("\nsession: ", session);
+    console.log("user session created");
+
+    const isLoggedIn = await checkAuthUser();
+
+    if (isLoggedIn) {
+      console.log("\nlogged In....Redirectig to Homepage");
+      navigate("/");
+    } else {
+      toast({
+        variant: "destructive",
+        title: "User not authenticated. Please try again.",
+      });
+
+      return;
+    }
   }
+
   return (
     <div className="sm:w-420 flex-center flex-col">
       <img src="/assets/images/logo.svg" alt="logo" />
@@ -132,7 +181,7 @@ const SignUpForm = () => {
             )}
           />
           <Button type="submit" className="shad-button_primary">
-            {isLoading ? (
+            {isCreatingUser ? (
               <div className="flex-center gap-2">
                 <Loader /> Loading...
               </div>

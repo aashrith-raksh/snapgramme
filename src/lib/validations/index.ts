@@ -12,3 +12,10 @@ export const signUpValidationSchema = z.object({
     .string()
     .min(8, { message: "Username must be atleast 2 characters" }),
 });
+
+export const signInValidationSchema = z.object({
+  email: z.string().email(),
+  password: z
+    .string()
+    .min(8, { message: "Username must be atleast 2 characters" }),
+});

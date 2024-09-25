@@ -1,6 +1,6 @@
-import { ID } from "appwrite";
+import { ID, Query } from "appwrite";
 import { account, appwriteConfig, avatar, db } from "./config";
-import { INewUser } from "../types";
+import { INewUser, IUserInDB } from "../types";
 
 export const createUserAccount = async (userDetails: INewUser) => {
   try {
@@ -24,32 +24,87 @@ export const createUserAccount = async (userDetails: INewUser) => {
     return newUserInDB;
   } catch (error) {
     if (error instanceof Error) {
-      console.log("------ createUserAccount -------------")
-      console.error('\t' + error.message);
+      console.log("------ createUserAccount -------------");
+      console.error("\t" + error.message);
     } else {
-      console.log("------ createUserAccount -------------")
-      console.error('\t' + "An unknown error occurred.");
+      console.log("------ createUserAccount -------------");
+      console.error("\t" + "An unknown error occurred.");
     }
   }
 };
 
-export const saveUserToDB = async (newUserDetails: any) => {
+
+export const saveUserToDB = async (newUserDetails: IUserInDB) => {
   try {
     const newUserInDB = await db.createDocument(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
-      ID.unique(),
+      ID.unique(), //--note: this references documentId. accoundId is seperate and different for each document.
       newUserDetails
     );
 
-    return newUserInDB
+    return newUserInDB;
   } catch (error) {
     if (error instanceof Error) {
-      console.log("------ saveUserToDB -------------")
-      console.error('\t' + error.message);
+      console.log("------ saveUserToDB -------------");
+      console.error("\t" + error.message);
     } else {
-      console.log("------ createUserAccount -------------")
-      console.error('\t' + "An unknown error occurred.");
+      console.log("------ createUserAccount -------------");
+      console.error("\t" + "An unknown error occurred.");
+    }
+  }
+};
+
+export const signInUser = async (userCredentials: {
+  email: string;
+  password: string;
+}) => {
+  try {
+    const { email, password } = userCredentials;
+    const session = await account.createEmailPasswordSession(email, password);
+    return session;
+  } catch (error) {
+    console.log("------- signInUser --------");
+
+    if (error instanceof Error) {
+      console.error("\t", error.message);
+    } else {
+      console.error("\tUnkniown error occured");
+    }
+  }
+};
+
+export const getCurrentUser = async () => {
+  console.log("------- getCurrentUser --------");
+  try {
+    const currentLoggedInAccount = await account.get();
+    if (!currentLoggedInAccount) throw new Error("currentLoggedInAcccount not found");
+
+    console.log("\tcurrentLoggedInAccount:", currentLoggedInAccount);
+    
+    const currentId = currentLoggedInAccount.$id;
+    console.log("\tcurrentId:", currentId);
+
+    const currentUserDocs = await db.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal("accountId", currentId)]
+    );
+
+    if (!currentUserDocs) {
+      throw new Error("currentUserDoc not found")
+    }
+
+    console.log("\n\tcurrentUserDocs[0]:", currentUserDocs.documents[0]);
+    console.log("\tRETURNING....", currentUserDocs.documents[0]);
+    console.log("-------------------------------------------------");
+
+
+    return currentUserDocs.documents[0];
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log("----- getCurretUser -------");
+      console.error("\t", error.message);
     }
   }
 };
