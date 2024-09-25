@@ -46,3 +46,12 @@ export type INavLink = {
     username: string;
     password: string;
   };
+
+  export type IUserInDB = {
+    accountId: string;
+    email: string;
+    name: string;
+    imageUrl: URL;
+    username: string;
+  }
+  
