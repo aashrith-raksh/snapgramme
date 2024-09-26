@@ -1,7 +1,9 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 
 import { IUser } from "@/lib/types";
-import { getCurrentUser } from "@/lib/appwrite/api";
+import { getCurrentUser, getCurrentUserWithLogs } from "@/lib/appwrite/api";
+import { useNavigate } from "react-router-dom";
+
 
 export const INITIAL_USER = {
   id: "",
@@ -32,13 +34,31 @@ type IContextType = {
 
 const AuthContext = createContext<IContextType>(INITIAL_STATE);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: React.ReactNode}) {
   const [user, setUser] = useState<IUser>(INITIAL_USER);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
+
+
+  useEffect(() => {
+    console.log("\nEFFECT RUNNING(AuthContext)...");
+    const cookieFallback = localStorage.getItem("cookieFallback");
+    if (
+      cookieFallback === "[]" ||
+      cookieFallback === null ||
+      cookieFallback === undefined
+    ) {
+      console.log("Not authenticated....back to signup")
+      navigate("/signin")
+      return;
+    }
+
+    checkAuthUser();
+  }, []);
 
   const checkAuthUser = async () => {
-    console.log("\n--------- checkAuthUser ---------");
+    console.log("\n\t--------- checkAuthUser ---------");
 
     setIsLoading(true);
     try {
@@ -64,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error(error);
       return false;
     } finally {
-      console.log("----------------------------------");
+      console.log("\t----------------------------------");
       setIsLoading(false);
     }
   };
@@ -82,3 +102,4 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 }
 
 export const useUserContext = () => useContext(AuthContext);
+

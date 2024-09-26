@@ -3,41 +3,21 @@ import { account } from "@/lib/appwrite/config";
 import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 
+import TopBar from "@/components/shared/TopBar";
+import LeftSideBar from "@/components/shared/LeftSideBar";
+import BottomBar from "@/components/shared/BottomBar";
+
 const RootLayout = () => {
-  const navigate = useNavigate();
-
-  const { checkAuthUser, user } = useUserContext();
-
-  useEffect(() => {
-    console.log("Effect running...");
-    console.log("\tcurrenUser:", user);
-
-    const cookieFallback = localStorage.getItem("cookieFallback");
-    if (
-      cookieFallback === "[]" ||
-      cookieFallback === null
-    ) {
-      console.log("No cookie found...redirecting to sign-up page");
-      navigate("/signup");
-      return;
-    }
-
-    checkAuthUser();
-  }, []);
-
   return (
-    <div>
-      <h1>ROOT</h1>
-      <button
-        onClick={() => {
-          console.log("------------ Deleteing Sessions -----------");
-          const res = account.deleteSessions();
-          console.log("\tres:", res);
-        }}
-      >
-        Logout
-      </button>
-      <Outlet />
+    <div className="w-full md:flex">
+      <TopBar />
+      <LeftSideBar />
+
+      <section className="flex flex-1 h-full">
+        <Outlet />
+      </section>
+
+      <BottomBar />
     </div>
   );
 };

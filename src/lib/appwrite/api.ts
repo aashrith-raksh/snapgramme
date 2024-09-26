@@ -33,7 +33,6 @@ export const createUserAccount = async (userDetails: INewUser) => {
   }
 };
 
-
 export const saveUserToDB = async (newUserDetails: IUserInDB) => {
   try {
     const newUserInDB = await db.createDocument(
@@ -75,13 +74,43 @@ export const signInUser = async (userCredentials: {
 };
 
 export const getCurrentUser = async () => {
+  try {
+    const currentLoggedInAccount = await account.get();
+    if (!currentLoggedInAccount)
+      throw new Error("currentLoggedInAcccount not found");
+
+
+    const currentId = currentLoggedInAccount.$id;
+
+    const currentUserDocs = await db.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal("accountId", currentId)]
+    );
+
+    if (!currentUserDocs) {
+      throw new Error("currentUserDoc not found");
+    }
+
+    return currentUserDocs.documents[0];
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log("----- getCurretUser -------");
+      console.error("\t", error.message);
+    }
+  }
+};
+
+//use this to debug. This version has console logs of the results
+export const getCurrentUserWithLogs = async () => {
   console.log("------- getCurrentUser --------");
   try {
     const currentLoggedInAccount = await account.get();
-    if (!currentLoggedInAccount) throw new Error("currentLoggedInAcccount not found");
+    if (!currentLoggedInAccount)
+      throw new Error("currentLoggedInAcccount not found");
 
     console.log("\tcurrentLoggedInAccount:", currentLoggedInAccount);
-    
+
     const currentId = currentLoggedInAccount.$id;
     console.log("\tcurrentId:", currentId);
 
@@ -92,13 +121,12 @@ export const getCurrentUser = async () => {
     );
 
     if (!currentUserDocs) {
-      throw new Error("currentUserDoc not found")
+      throw new Error("currentUserDoc not found");
     }
 
     console.log("\n\tcurrentUserDocs[0]:", currentUserDocs.documents[0]);
     console.log("\tRETURNING....", currentUserDocs.documents[0]);
     console.log("-------------------------------------------------");
-
 
     return currentUserDocs.documents[0];
   } catch (error) {
@@ -106,5 +134,20 @@ export const getCurrentUser = async () => {
       console.log("----- getCurretUser -------");
       console.error("\t", error.message);
     }
+  }
+};
+
+export const signOutUser = async () => {
+  console.log("\t------------ signOutUser ---------------")
+  try {
+    const deletedSession = await account.deleteSession("current");
+    console.log("\tdeletedSession", deletedSession);
+    return deletedSession;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+
+    return undefined;
   }
 };
