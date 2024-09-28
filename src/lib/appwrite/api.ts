@@ -234,7 +234,9 @@ export function getFilePreview(fileId: string) {
 
     return fileUrl;
   } catch (error) {
-    console.log(error);
+    if (error instanceof Error) {
+      console.log(error.message);
+    }
   }
 }
 
@@ -245,6 +247,30 @@ export async function deleteFile(fileId: string) {
 
     return { status: "ok" };
   } catch (error) {
-    console.log(error);
+    if (error instanceof Error) {
+      console.log(error.message);
+    }
   }
+}
+
+// ============================== GET POPULAR POSTS (BY HIGHEST LIKE COUNT)
+export async function  getRecentPosts() {
+  try {
+    const posts = db.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      [Query.orderDesc("$createdAt"), Query.limit(20)]
+    )
+
+
+    if(!posts) throw new Error("Error while fetching recent posts")
+
+    return posts;
+    
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log(error.message);
+    }
+  }
+  
 }
