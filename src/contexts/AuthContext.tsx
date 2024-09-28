@@ -42,7 +42,7 @@ export function AuthProvider({ children }: { children: React.ReactNode}) {
 
 
   useEffect(() => {
-    console.log("\nEFFECT RUNNING(AuthContext)...");
+    // console.log("\nEFFECT RUNNING(AuthContext)...");
     const cookieFallback = localStorage.getItem("cookieFallback");
     if (
       cookieFallback === "[]" ||
@@ -58,13 +58,13 @@ export function AuthProvider({ children }: { children: React.ReactNode}) {
   }, []);
 
   const checkAuthUser = async () => {
-    console.log("\n\t--------- checkAuthUser ---------");
+    // console.log("\n\t--------- checkAuthUser ---------");
 
     setIsLoading(true);
     try {
       const currentAccount = await getCurrentUser();
       if (currentAccount) {
-        console.log("\tcurrentAccount:", currentAccount);
+        // console.log("\tcurrentAccount:", currentAccount);
         setUser({
           id: currentAccount.$id, //--note: might be wrong. $id would reference documentId and not accountId
           name: currentAccount.name,
@@ -84,7 +84,7 @@ export function AuthProvider({ children }: { children: React.ReactNode}) {
       console.error(error);
       return false;
     } finally {
-      console.log("\t----------------------------------");
+      // console.log("\t----------------------------------");
       setIsLoading(false);
     }
   };

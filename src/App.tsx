@@ -1,7 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { Toaster } from "./components/ui/toaster";
 import "./globals.css";
-import { Home } from "lucide-react";
 import AuthLayout from "./layouts/AuthLayout";
 import RootLayout from "./layouts/RootLayout";
 import SigninForm from "./pages/auth/SigninForm";
@@ -15,6 +14,7 @@ import {
   PostDetails,
   Profile,
   UpdateProfile,
+  Home,
 } from "./pages";
 
 function App() {
