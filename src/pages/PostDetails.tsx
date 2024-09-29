@@ -4,7 +4,7 @@ import { multiFormatDateString } from "@/lib/utils";
 import PostStats from "@/components/shared/PostStats";
 import { Button } from "@/components/ui/button";
 import { useUserContext } from "@/contexts/AuthContext";
-import { useGetPostById, useDeletePost } from "@/lib/react-query/queriesAndMutations";
+import { useGetPostById, useDeletePost, useGetUserPosts } from "@/lib/react-query/queriesAndMutations";
 import { Loader } from "lucide-react";
 import GridPostList from "@/components/shared/GridPostList";
 
@@ -151,7 +151,4 @@ const PostDetails = () => {
 };
 
 export default PostDetails;
-function useGetUserPosts($id: any): { data: any; isLoading: any; } {
-  throw new Error("Function not implemented.");
-}
 

@@ -334,6 +334,25 @@ export async function savePost(userId: string, postId: string) {
   }
 }
 
+// ============================== GET USER'S POST
+export async function getUserPosts(userId?: string) {
+  if (!userId) return;
+
+  try {
+    const post = await db.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.postCollectionId,
+      [Query.equal("creator", userId), Query.orderDesc("$createdAt")]
+    );
+
+    if (!post) throw Error;
+
+    return post;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 // ============================== GET POST BY ID
 export async function getPostById(postId?: string) {
   if (!postId) throw Error;

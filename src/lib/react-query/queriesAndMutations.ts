@@ -14,6 +14,7 @@ import {
   getInfinitePosts,
   getPostById,
   getRecentPosts,
+  getUserPosts,
   likePost,
   savePost,
   searchPosts,
@@ -172,6 +173,14 @@ export const useGetPosts = () => {
       const lastId = lastPage.documents[lastPage.documents.length - 1].$id;
       return lastId;
     },
+  });
+};
+
+export const useGetUserPosts = (userId?: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_USER_POSTS, userId],
+    queryFn: () => getUserPosts(userId),
+    enabled: !!userId,
   });
 };
 
