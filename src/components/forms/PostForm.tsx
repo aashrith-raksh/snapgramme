@@ -50,6 +50,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // =================================================ON SUBMIT
   async function onSubmit(values: z.infer<typeof postSchema>) {
     if (post && action === "Update") {
       const updatedPost = await updatePost({
