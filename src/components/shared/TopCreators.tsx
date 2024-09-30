@@ -31,9 +31,9 @@ const TopCreators = () => {
     );
   };
   
-  const UserCard = ({ creator }: { creator: Models.Document }) => {
+  export const UserCard = ({ creator, classes }: { creator: Models.Document, classes?:string }) => {
     return (
-      <div className="min-h-[190px] min-w-[190px] bg-dark-3 rounded-2xl border-off-white/10 border-[1px]">
+      <div className={`min-h-[190px] min-w-[190px] bg-dark-3 ${classes} rounded-2xl border-off-white/10 border-[1px]`}>
         <div className="flex flex-col px-8 py-6 items-center justify-between gap-4">
           <Link to={""}>
             <img
