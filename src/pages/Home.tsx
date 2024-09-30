@@ -1,15 +1,14 @@
 import PostCard from "@/components/shared/PostCard";
+import TopCreators from "@/components/shared/TopCreators";
 import { useGetRecentPosts } from "@/lib/react-query/queriesAndMutations";
 import { Models } from "appwrite";
 import { Loader } from "lucide-react";
 
 const Home = () => {
-
-  const {data: posts, isPending: isPostLoading, isError: isPostError, isSuccess} = useGetRecentPosts();
-  // if (isSuccess) {
-  //   console.log("posts loaded")
-  //   console.log(posts)
-  // }
+  const {
+    data: posts,
+    isPending: isPostLoading,
+  } = useGetRecentPosts();
   return (
     <>
       <div className="flex flex-1">
@@ -29,9 +28,11 @@ const Home = () => {
             )}
           </div>
         </div>
+        <TopCreators />
       </div>
     </>
   );
 };
 
 export default Home;
+

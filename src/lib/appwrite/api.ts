@@ -54,103 +54,6 @@ export const saveUserToDB = async (newUserDetails: IUserInDB) => {
   }
 };
 
-export const signInUser = async (userCredentials: {
-  email: string;
-  password: string;
-}) => {
-  try {
-    const { email, password } = userCredentials;
-    const session = await account.createEmailPasswordSession(email, password);
-    return session;
-  } catch (error) {
-    console.log("------- signInUser --------");
-
-    if (error instanceof Error) {
-      console.error("\t", error.message);
-    } else {
-      console.error("\tUnkniown error occured");
-    }
-  }
-};
-
-export const getCurrentUser = async () => {
-  try {
-    const currentLoggedInAccount = await account.get();
-    if (!currentLoggedInAccount)
-      throw new Error("currentLoggedInAcccount not found");
-
-    const currentId = currentLoggedInAccount.$id;
-
-    const currentUserDocs = await db.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.userCollectionId,
-      [Query.equal("accountId", currentId)]
-    );
-
-    if (!currentUserDocs) {
-      throw new Error("currentUserDoc not found");
-    }
-
-    return currentUserDocs.documents[0];
-  } catch (error) {
-    if (error instanceof Error) {
-      console.log("----- getCurretUser -------");
-      console.error("\t", error.message);
-    }
-  }
-};
-
-//use this to debug. This version has console logs of the results
-export const getCurrentUserWithLogs = async () => {
-  console.log("------- getCurrentUser --------");
-  try {
-    const currentLoggedInAccount = await account.get();
-    if (!currentLoggedInAccount)
-      throw new Error("currentLoggedInAcccount not found");
-
-    console.log("\tcurrentLoggedInAccount:", currentLoggedInAccount);
-
-    const currentId = currentLoggedInAccount.$id;
-    console.log("\tcurrentId:", currentId);
-
-    const currentUserDocs = await db.listDocuments(
-      appwriteConfig.databaseId,
-      appwriteConfig.userCollectionId,
-      [Query.equal("accountId", currentId)]
-    );
-
-    if (!currentUserDocs) {
-      throw new Error("currentUserDoc not found");
-    }
-
-    console.log("\n\tcurrentUserDocs[0]:", currentUserDocs.documents[0]);
-    console.log("\tRETURNING....", currentUserDocs.documents[0]);
-    console.log("-------------------------------------------------");
-
-    return currentUserDocs.documents[0];
-  } catch (error) {
-    if (error instanceof Error) {
-      console.log("----- getCurretUser -------");
-      console.error("\t", error.message);
-    }
-  }
-};
-
-export const signOutUser = async () => {
-  console.log("\t------------ signOutUser ---------------");
-  try {
-    const deletedSession = await account.deleteSession("current");
-    console.log("\tdeletedSession", deletedSession);
-    return deletedSession;
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(error.message);
-    }
-
-    return undefined;
-  }
-};
-
 export async function createPost(post: INewPost) {
   try {
     // Upload file/post image to appwrite storage
@@ -254,25 +157,22 @@ export async function deleteFile(fileId: string) {
 }
 
 // ============================== GET POPULAR POSTS (BY HIGHEST LIKE COUNT)
-export async function  getRecentPosts() {
+export async function getRecentPosts() {
   try {
     const posts = db.listDocuments(
       appwriteConfig.databaseId,
       appwriteConfig.postCollectionId,
       [Query.orderDesc("$createdAt"), Query.limit(20)]
-    )
+    );
 
-
-    if(!posts) throw new Error("Error while fetching recent posts")
+    if (!posts) throw new Error("Error while fetching recent posts");
 
     return posts;
-    
   } catch (error) {
     if (error instanceof Error) {
       console.log(error.message);
     }
   }
-  
 }
 
 // ============================== LIKE / UNLIKE POST
@@ -294,7 +194,6 @@ export async function likePost(postId: string, likesArray: string[]) {
     console.log(error);
   }
 }
-
 
 // ============================== DELETE SAVED POST
 export async function deleteSavedPost(savedRecordId: string) {
@@ -496,3 +395,126 @@ export async function getInfinitePosts({ pageParam }: { pageParam: number }) {
   }
 }
 
+// ============================================================
+// USER
+// ============================================================
+
+// ============================== GET USERS
+export async function getUsers(limit?: number) {
+  const queries: any[] = [Query.orderDesc("$createdAt")];
+
+  if (limit) {
+    queries.push(Query.limit(limit));
+  }
+
+  try {
+    const users = await db.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      queries
+    );
+
+    if (!users) throw Error;
+
+    return users;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const signInUser = async (userCredentials: {
+  email: string;
+  password: string;
+}) => {
+  try {
+    const { email, password } = userCredentials;
+    const session = await account.createEmailPasswordSession(email, password);
+    return session;
+  } catch (error) {
+    console.log("------- signInUser --------");
+
+    if (error instanceof Error) {
+      console.error("\t", error.message);
+    } else {
+      console.error("\tUnkniown error occured");
+    }
+  }
+};
+
+export const getCurrentUser = async () => {
+  try {
+    const currentLoggedInAccount = await account.get();
+    if (!currentLoggedInAccount)
+      throw new Error("currentLoggedInAcccount not found");
+
+    const currentId = currentLoggedInAccount.$id;
+
+    const currentUserDocs = await db.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal("accountId", currentId)]
+    );
+
+    if (!currentUserDocs) {
+      throw new Error("currentUserDoc not found");
+    }
+
+    return currentUserDocs.documents[0];
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log("----- getCurretUser -------");
+      console.error("\t", error.message);
+    }
+  }
+};
+
+//use this to debug. This version has console logs of the results
+export const getCurrentUserWithLogs = async () => {
+  console.log("------- getCurrentUser --------");
+  try {
+    const currentLoggedInAccount = await account.get();
+    if (!currentLoggedInAccount)
+      throw new Error("currentLoggedInAcccount not found");
+
+    console.log("\tcurrentLoggedInAccount:", currentLoggedInAccount);
+
+    const currentId = currentLoggedInAccount.$id;
+    console.log("\tcurrentId:", currentId);
+
+    const currentUserDocs = await db.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.equal("accountId", currentId)]
+    );
+
+    if (!currentUserDocs) {
+      throw new Error("currentUserDoc not found");
+    }
+
+    console.log("\n\tcurrentUserDocs[0]:", currentUserDocs.documents[0]);
+    console.log("\tRETURNING....", currentUserDocs.documents[0]);
+    console.log("-------------------------------------------------");
+
+    return currentUserDocs.documents[0];
+  } catch (error) {
+    if (error instanceof Error) {
+      console.log("----- getCurretUser -------");
+      console.error("\t", error.message);
+    }
+  }
+};
+
+export const signOutUser = async () => {
+  console.log("\t------------ signOutUser ---------------");
+  try {
+    const deletedSession = await account.deleteSession("current");
+    console.log("\tdeletedSession", deletedSession);
+    return deletedSession;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+
+    return undefined;
+  }
+};
