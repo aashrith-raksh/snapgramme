@@ -1,11 +1,41 @@
-import React from 'react'
+import people from "../../public/assets/icons/people.svg";
+import { useGetUsers } from "@/lib/react-query/queriesAndMutations";
+import { UserCard } from "@/components/shared/TopCreators";
+import { Models } from "appwrite";
+import Loader from "@/components/shared/Loader";
 
 const AllUsers = () => {
-  return (
-    <div>
-      All Users
-    </div>
-  )
-}
+  const {
+    data: creators,
+    isLoading: isUserLoading,
+    isError: isErrorCreators,
+  } = useGetUsers();
 
-export default AllUsers
+
+
+
+  return isUserLoading ? (
+    <Loader />
+  ) : isErrorCreators ? (
+    <p>An error occurred</p>
+  ) : (
+    <div className="max-w-screen w-full px-16 py-16 flex flex-col flex-1">
+      <div className="flex flex-1 mb-12">
+        <img src={people} className="max-h-[38px] w-[38px]" />
+
+        <h2 className="h3-bold md:h2-bold text-left ml-4">All Users</h2>
+      </div>
+
+      <div
+        className="grid grid-flow-row grid-rows-3 lg:grid-cols-4 lg:gap-10
+      grid-cols-3 gap-6 justify-items-stretch align-items-stretch"
+      >
+        {creators?.documents.map((creator: Models.Document) => (
+          <UserCard creator={creator} classes="bg-dark-1" />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default AllUsers;

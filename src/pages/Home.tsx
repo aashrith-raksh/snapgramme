@@ -1,8 +1,8 @@
+import Loader from "@/components/shared/Loader";
 import PostCard from "@/components/shared/PostCard";
 import TopCreators from "@/components/shared/TopCreators";
 import { useGetRecentPosts } from "@/lib/react-query/queriesAndMutations";
 import { Models } from "appwrite";
-import { Loader } from "lucide-react";
 
 const Home = () => {
   const {
