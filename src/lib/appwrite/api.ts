@@ -372,6 +372,23 @@ export async function searchPosts(searchTerm: string) {
     console.log(error);
   }
 }
+// ============================== GET SAVED POSTS
+export async function getSavedPosts(userId: string) {
+  try {
+    const savedPosts = await db.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.savesCollectionId,
+      [Query.equal("user", userId)]
+    );
+
+    if (!savedPosts) throw new Error("Error while fetching saved posts");
+
+    return savedPosts;
+  } catch (error) {
+    if(error instanceof Error)
+    console.log(error.message);
+  }
+}
 
 export async function getInfinitePosts({ pageParam }: { pageParam: number }) {
   const queries: any[] = [Query.orderDesc("$updatedAt"), Query.limit(9)];

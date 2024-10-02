@@ -6,7 +6,7 @@ import {
 } from "@/lib/react-query/queriesAndMutations";
 import { checkIsLiked } from "@/lib/utils";
 import { Models } from "appwrite";
-import { FC, useState } from "react";
+import { FC, useEffect, useState } from "react";
 
 type PostStatsProps = {
   post: Models.Document;
@@ -31,9 +31,11 @@ const PostStats: FC<PostStatsProps> = ({ post, userId }) => {
     (record: Models.Document) => record.post.$id === post.$id
   );
 
-  const handleLikePost = async (
-    e: React.MouseEvent<HTMLImageElement>
-  ) => {
+  useEffect(() => {
+    if (savedPostRecord) setIsSaved(true);
+  },[]);
+
+  const handleLikePost = async (e: React.MouseEvent<HTMLImageElement>) => {
     e.stopPropagation();
 
     let likesArray = [...likes];
@@ -47,12 +49,9 @@ const PostStats: FC<PostStatsProps> = ({ post, userId }) => {
 
     setLikes(likesArray);
     likePost({ postId: post.$id, likesArray });
-
   };
 
-  const handleSavePost = (
-    e: React.MouseEvent<HTMLImageElement>
-  ) => {
+  const handleSavePost = (e: React.MouseEvent<HTMLImageElement>) => {
     e.stopPropagation();
 
     if (savedPostRecord) {
@@ -65,8 +64,8 @@ const PostStats: FC<PostStatsProps> = ({ post, userId }) => {
   };
 
   const containerStyles = location.pathname.startsWith("/profile")
-  ? "w-full"
-  : "";
+    ? "w-full"
+    : "";
 
   return (
     <div
