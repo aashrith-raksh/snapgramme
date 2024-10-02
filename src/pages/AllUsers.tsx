@@ -1,4 +1,3 @@
-import people from "../../public/assets/icons/people.svg";
 import { useGetUsers } from "@/lib/react-query/queriesAndMutations";
 import { UserCard } from "@/components/shared/TopCreators";
 import { Models } from "appwrite";
@@ -21,7 +20,7 @@ const AllUsers = () => {
   ) : (
     <div className="max-w-screen w-full px-16 py-16 flex flex-col flex-1">
       <div className="flex flex-1 mb-12">
-        <img src={people} className="max-h-[38px] w-[38px]" />
+        <img src="/assets/icons/people.svg" className="max-h-[38px] w-[38px]" />
 
         <h2 className="h3-bold md:h2-bold text-left ml-4">All Users</h2>
       </div>

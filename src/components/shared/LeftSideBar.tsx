@@ -1,21 +1,28 @@
-import { sidebarLinks } from '@/constants';
-import { INavLink } from '@/lib/types';
-// import { Loader } from 'lucide-react';
-import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Button } from '../ui/button';
-import { useUserContext } from '@/contexts/AuthContext';
-import Loader from './Loader';
+import { sidebarLinks } from "@/constants";
+import { INavLink } from "@/lib/types";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Button } from "../ui/button";
+import { useUserContext } from "@/contexts/AuthContext";
+import Loader from "./Loader";
 
 const LeftSideBar = () => {
+  const navigate = useNavigate();
 
   const { pathname } = useLocation();
   const { user, isLoading } = useUserContext();
+
+  function handleLogout(): void {
+    localStorage.removeItem("cookieFallback");
+    navigate("signin");
+    return;
+  }
+
   return (
     <nav className="leftsidebar">
       <div className="flex flex-col gap-11">
         <Link to="/" className="flex gap-3 items-center">
           <img
-            src="/assets/images/logo.svg"
+            src="/assets/images/SnapMate.svg"
             alt="logo"
             width={170}
             height={36}
@@ -27,7 +34,7 @@ const LeftSideBar = () => {
             <Loader />
           </div>
         ) : (
-          <Link to={`/profile/${user.id}`} className="flex gap-3 items-center">
+          <Link to={`/update-profile`} className="flex gap-3 items-center">
             <img
               src={user.imageUrl || "/assets/icons/profile-placeholder.svg"}
               alt="profile"
@@ -49,10 +56,12 @@ const LeftSideBar = () => {
                 key={link.label}
                 className={`leftsidebar-link group ${
                   isActive && "bg-primary-500"
-                }`}>
+                }`}
+              >
                 <NavLink
                   to={link.route}
-                  className="flex gap-4 items-center p-4">
+                  className="flex gap-4 items-center p-4"
+                >
                   <img
                     src={link.imgURL}
                     alt={link.label}
@@ -71,12 +80,13 @@ const LeftSideBar = () => {
       <Button
         variant="ghost"
         className="shad-button_ghost"
-        onClick={(e) => {console.log('logout')}}>
+        onClick={handleLogout}
+      >
         <img src="/assets/icons/logout.svg" alt="logout" />
         <p className="small-medium lg:base-medium">Logout</p>
       </Button>
     </nav>
   );
-}
+};
 
-export default LeftSideBar
+export default LeftSideBar;
