@@ -1,9 +1,10 @@
 import { sidebarLinks } from '@/constants';
 import { INavLink } from '@/lib/types';
-import { Loader } from 'lucide-react';
+// import { Loader } from 'lucide-react';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 import { Button } from '../ui/button';
 import { useUserContext } from '@/contexts/AuthContext';
+import Loader from './Loader';
 
 const LeftSideBar = () => {
 

@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { IUser } from "@/lib/types";
 import { getCurrentUser, getCurrentUserWithLogs } from "@/lib/appwrite/api";
 import { useNavigate } from "react-router-dom";
+import exp from "constants";
 
 
 export const INITIAL_USER = {
@@ -32,7 +33,7 @@ type IContextType = {
   checkAuthUser: () => Promise<boolean>;
 };
 
-const AuthContext = createContext<IContextType>(INITIAL_STATE);
+export const AuthContext = createContext<IContextType>(INITIAL_STATE);
 
 export function AuthProvider({ children }: { children: React.ReactNode}) {
   const [user, setUser] = useState<IUser>(INITIAL_USER);

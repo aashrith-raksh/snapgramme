@@ -1,6 +1,7 @@
 import { ID, Query, ImageGravity } from "appwrite";
 import { account, appwriteConfig, avatar, db, storage } from "./config";
-import { INewPost, INewUser, IUpdatePost, IUserInDB } from "../types";
+import { INewPost, INewUser, IUpdatePost, IUpdateProfile, IUserInDB } from "../types";
+import { UpdateProfile } from "@/pages";
 
 export const createUserAccount = async (userDetails: INewUser) => {
   try {
@@ -458,6 +459,33 @@ export const signInUser = async (userCredentials: {
   }
 };
 
+export const updateProfile = async (newUserProfileDetails: IUpdateProfile, userId: string) => {
+  try {
+    const updatedProfile = await db.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      userId,
+      {
+        ...newUserProfileDetails
+      }
+    )
+
+    if (!UpdateProfile) throw new Error("Error while updating profile details");
+
+    return updatedProfile;
+
+
+  } catch (error) {
+    console.log("------- signInUser --------");
+
+    if (error instanceof Error) {
+      console.error("\t", error.message);
+    } else {
+      console.error("\tUnkniown error occured");
+    }
+    
+  }
+}
 export const getCurrentUser = async () => {
   try {
     const currentLoggedInAccount = await account.get();

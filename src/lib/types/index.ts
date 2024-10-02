@@ -46,6 +46,12 @@ export type INavLink = {
     username: string;
     password: string;
   };
+  export type IUpdateProfile = {
+    name: string;
+    username: string;
+    email: string;
+    bio: string;
+  };
 
   export type IUserInDB = {
     accountId: string;

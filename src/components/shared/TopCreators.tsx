@@ -1,6 +1,6 @@
 import { useGetUsers } from "@/lib/react-query/queriesAndMutations";
 import { Models } from "appwrite";
-import { Loader } from "lucide-react";
+import Loader from './Loader';
 import { Link } from "react-router-dom";
 
 const TopCreators = () => {

@@ -5,8 +5,8 @@ import PostStats from "@/components/shared/PostStats";
 import { Button } from "@/components/ui/button";
 import { useUserContext } from "@/contexts/AuthContext";
 import { useGetPostById, useDeletePost, useGetUserPosts } from "@/lib/react-query/queriesAndMutations";
-import { Loader } from "lucide-react";
 import GridPostList from "@/components/shared/GridPostList";
+import Loader from "@/components/shared/Loader";
 
 const PostDetails = () => {
   const navigate = useNavigate();

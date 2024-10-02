@@ -1,8 +1,6 @@
 import { useEffect, useState } from "react";
 import saveIcon from "../../public/assets/icons/save.svg";
-import {
-  useGetSavedPosts,
-} from "@/lib/react-query/queriesAndMutations";
+import { useGetSavedPosts } from "@/lib/react-query/queriesAndMutations";
 import Loader from "@/components/shared/Loader";
 import GridPostList from "@/components/shared/GridPostList";
 import { useUserContext } from "@/contexts/AuthContext";
@@ -32,21 +30,28 @@ const Saved = () => {
   return (!isSavedLoading && !user) || (!isSavedLoading && isSavedError) ? (
     <p>An error occurred</p>
   ) : (
-    <div className="max-w-screen w-full px-16 py-16 flex flex-col ">
-      <div className="flex flex-grow-0 mb-16">
-        <img src={saveIcon} className="max-h-[38px] w-[38px]" />
-
-        <h2 className="h3-bold md:h2-bold text-left ml-4">Saved Posts</h2>
+    <div className="flex flex-1">
+      <div className="common-container">
+        <div className="flex-start gap-3 justify-start w-full max-w-5xl">
+          <img
+            src="/assets/icons/save.svg"
+            width={36}
+            height={36}
+            alt="edit"
+            className="invert-white"
+          />
+          <h2 className="h3-bold md:h2-bold text-left w-full">Saved Posts</h2>
+        </div>
+        {isSavedLoading ? (
+          <Loader />
+        ) : posts.length > 0 ? (
+          <div className="flex-grow">
+            <GridPostList posts={posts} showUser={true} showStats={true} />
+          </div>
+        ) : (
+          <p>No Saved Posts</p>
+        )}
       </div>
-      {isSavedLoading ? (
-        <Loader />
-      ) : posts.length > 0 ? (
-        <div className="flex-grow">
-        <GridPostList posts={posts} showUser={true} showStats={true} />
-      </div>
-      ) : (
-        <p>No Saved Posts</p>
-      )}
     </div>
   );
 };
