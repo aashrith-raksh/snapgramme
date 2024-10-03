@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import saveIcon from "../../public/assets/icons/save.svg";
 import { useGetSavedPosts } from "@/lib/react-query/queriesAndMutations";
 import Loader from "@/components/shared/Loader";
 import GridPostList from "@/components/shared/GridPostList";
@@ -7,7 +6,7 @@ import { useUserContext } from "@/contexts/AuthContext";
 import { Models } from "appwrite";
 
 const Saved = () => {
-  const { user } = useUserContext();
+  const { user, isAnonymous } = useUserContext();
   const {
     data: savedPosts,
     isPending: isSavedLoading,
@@ -42,7 +41,9 @@ const Saved = () => {
           />
           <h2 className="h3-bold md:h2-bold text-left w-full">Saved Posts</h2>
         </div>
-        {isSavedLoading ? (
+        {isAnonymous ? (
+          <p>Sign Up to save posts</p>
+        ) : isSavedLoading ? (
           <Loader />
         ) : posts.length > 0 ? (
           <div className="flex-grow">

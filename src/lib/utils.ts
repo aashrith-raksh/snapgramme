@@ -53,3 +53,15 @@ export const multiFormatDateString = (timestamp: string = ""): string => {
 export const checkIsLiked = (likeList: string[], userId: string) => {
   return likeList.includes(userId);
 };
+
+export const createGuestUser = () => {
+  localStorage.setItem('isGuest', 'true')
+}
+
+export const deleteGuestUser = () => {
+  localStorage.removeItem('isGuest');
+}
+
+export const checkIsGuestUser = () => {
+  return localStorage.getItem('isGuest') === "true";
+}

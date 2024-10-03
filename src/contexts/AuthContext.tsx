@@ -1,10 +1,9 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 import { IUser } from "@/lib/types";
-import { getCurrentUser, getCurrentUserWithLogs } from "@/lib/appwrite/api";
+import { getCurrentUser } from "@/lib/appwrite/api";
 import { useNavigate } from "react-router-dom";
-import exp from "constants";
-
+import { checkIsGuestUser } from "@/lib/utils";
 
 export const INITIAL_USER = {
   id: "",
@@ -22,6 +21,8 @@ const INITIAL_STATE = {
   setUser: () => {},
   setIsAuthenticated: () => {},
   checkAuthUser: async () => false as boolean,
+  isAnonymous: false,
+  setIsAnonymous: () => {},
 };
 
 type IContextType = {
@@ -31,33 +32,49 @@ type IContextType = {
   isAuthenticated: boolean;
   setIsAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
   checkAuthUser: () => Promise<boolean>;
+  isAnonymous: boolean;
+  setIsAnonymous: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const AuthContext = createContext<IContextType>(INITIAL_STATE);
 
-export function AuthProvider({ children }: { children: React.ReactNode}) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<IUser>(INITIAL_USER);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAnonymous, setIsAnonymous] = useState(checkIsGuestUser());
   const navigate = useNavigate();
+
+  useEffect(() => {
+    console.log(">>>>>> 1. AUTH PROVIDER MOUNTED")
+  }, [])
 
 
   useEffect(() => {
     // console.log("\nEFFECT RUNNING(AuthContext)...");
+    console.log(">>>>>> 2. CHECKING FOR COOKIE FALLBACK")
+
     const cookieFallback = localStorage.getItem("cookieFallback");
     if (
       cookieFallback === "[]" ||
       cookieFallback === null ||
       cookieFallback === undefined
     ) {
-      console.log("Not authenticated....back to signup")
-      navigate("/signin")
+      console.log("\tNot Authenticated");
+      navigate("/signin");
       return;
     }
 
     checkAuthUser();
   }, []);
 
+  useEffect(() => {
+    console.log("\n>>>>>> 3. SETTING isAnonymous")
+    console.log("\tisAnonymous: ", isAnonymous)
+    console.log("\n")
+  },[isAnonymous])
+
+  
   const checkAuthUser = async () => {
     // console.log("\n\t--------- checkAuthUser ---------");
 
@@ -97,10 +114,11 @@ export function AuthProvider({ children }: { children: React.ReactNode}) {
     isAuthenticated,
     setIsAuthenticated,
     checkAuthUser,
+    isAnonymous,
+    setIsAnonymous,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export const useUserContext = () => useContext(AuthContext);
-

@@ -4,17 +4,27 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { useUserContext } from "@/contexts/AuthContext";
 import Loader from "./Loader";
+import { account } from "@/lib/appwrite/config";
+import { deleteGuestUser } from "@/lib/utils";
 
 const LeftSideBar = () => {
   const navigate = useNavigate();
 
   const { pathname } = useLocation();
-  const { user, isLoading } = useUserContext();
+    const { user, isAnonymous, setIsAnonymous } = useUserContext();
 
-  function handleLogout(): void {
-    localStorage.removeItem("cookieFallback");
-    navigate("signin");
-    return;
+  async function handleLogout(): Promise<void> {
+    try {
+      const deletedSession = await account.deleteSession("current");
+      console.log("LOGOUT");
+      console.log("============ DELETED SESSION:",deletedSession);
+      deleteGuestUser();
+      setIsAnonymous(false);
+
+      navigate("signin");
+    } catch (error) {
+      if (error instanceof Error) console.log(error.message);
+    }
   }
 
   return (
@@ -22,14 +32,15 @@ const LeftSideBar = () => {
       <div className="flex flex-col gap-11">
         <Link to="/" className="flex gap-3 items-center">
           <img
-            src="/assets/images/SnapMate.svg"
+            src="/assets/images/logo.svg"
             alt="logo"
             width={170}
             height={36}
           />
         </Link>
+        {/* {isLoading || !user.email */}
 
-        {isLoading || !user.email ? (
+        {false ? (
           <div className="h-14">
             <Loader />
           </div>
@@ -41,8 +52,8 @@ const LeftSideBar = () => {
               className="h-14 w-14 rounded-full"
             />
             <div className="flex flex-col">
-              <p className="body-bold">{user.name}</p>
-              <p className="small-regular text-light-3">@{user.username}</p>
+              <p className="body-bold">{isAnonymous? "Guest":user.name}</p>
+              <p className="small-regular text-light-3">@{isAnonymous? "guest":user.username}</p>
             </div>
           </Link>
         )}
@@ -83,7 +94,9 @@ const LeftSideBar = () => {
         onClick={handleLogout}
       >
         <img src="/assets/icons/logout.svg" alt="logout" />
-        <p className="small-medium lg:base-medium">Logout</p>
+        <p className="small-medium lg:base-medium">
+          {isAnonymous ? "Exit guest mode" : "Logout"}
+        </p>
       </Button>
     </nav>
   );

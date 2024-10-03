@@ -24,6 +24,7 @@ import { useUserContext } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import Loader from "../shared/Loader";
+import AlertDialogWrapper from "../shared/AlertDialogWrapper";
 
 type PostFormProps = {
   post?: Models.Document;
@@ -46,7 +47,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
     useCreatePost();
   const { mutateAsync: updatePost, isPending: isLoadingUpdate } =
     useUpdatePost();
-  const { user } = useUserContext();
+  const { user, isAnonymous } = useUserContext();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -159,14 +160,30 @@ const PostForm = ({ post, action }: PostFormProps) => {
           <Button type="button" className="shad-button_dark_4">
             Cancel
           </Button>
-          <Button
-            type="submit"
-            className="shad-button_primary whitespace-nowrap"
-            disabled={isLoadingCreate || isLoadingUpdate}
-          >
-            {(isLoadingCreate || isLoadingUpdate) && <Loader />}
-            {action} Post
-          </Button>
+          {isAnonymous ? (
+            <AlertDialogWrapper
+              title={"Sign Up to Create a Post"}
+              description={
+                "Create an account to create posts and share them with your friends"
+              }
+            >
+              <Button
+                type="button"
+                className="shad-button_primary whitespace-nowrap"
+              >
+                {action} Post
+              </Button>
+            </AlertDialogWrapper>
+          ) : (
+            <Button
+              type="submit"
+              className="shad-button_primary whitespace-nowrap"
+              disabled={isLoadingCreate || isLoadingUpdate}
+            >
+              {(isLoadingCreate || isLoadingUpdate) && <Loader />}
+              {action} Post
+            </Button>
+          )}
         </div>
       </form>
     </Form>

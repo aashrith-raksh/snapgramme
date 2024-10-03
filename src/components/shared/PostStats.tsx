@@ -1,3 +1,4 @@
+import { useUserContext } from "@/contexts/AuthContext";
 import {
   useLikePost,
   useSavePost,
@@ -7,6 +8,7 @@ import {
 import { checkIsLiked } from "@/lib/utils";
 import { Models } from "appwrite";
 import { FC, useEffect, useState } from "react";
+import AlertDialogWrapper from "./AlertDialogWrapper";
 
 type PostStatsProps = {
   post: Models.Document;
@@ -25,6 +27,7 @@ const PostStats: FC<PostStatsProps> = ({ post, userId }) => {
   const { mutate: deleteSavePost } = useDeleteSavedPost();
 
   const { data: currentUser } = useGetCurrentUser();
+  const { isAnonymous } = useUserContext();
 
   //Get the post document from the array of all the saved posts of current user
   const savedPostRecord = currentUser?.save.find(
@@ -33,8 +36,9 @@ const PostStats: FC<PostStatsProps> = ({ post, userId }) => {
 
   useEffect(() => {
     if (savedPostRecord) setIsSaved(true);
-  },[]);
+  }, []);
 
+  // ========================= HANDLE LIKE POST
   const handleLikePost = async (e: React.MouseEvent<HTMLImageElement>) => {
     e.stopPropagation();
 
@@ -50,7 +54,7 @@ const PostStats: FC<PostStatsProps> = ({ post, userId }) => {
     setLikes(likesArray);
     likePost({ postId: post.$id, likesArray });
   };
-
+  // ========================= HANDLE SAVE POST
   const handleSavePost = (e: React.MouseEvent<HTMLImageElement>) => {
     e.stopPropagation();
 
@@ -63,6 +67,7 @@ const PostStats: FC<PostStatsProps> = ({ post, userId }) => {
     setIsSaved(true);
   };
 
+
   const containerStyles = location.pathname.startsWith("/profile")
     ? "w-full"
     : "";
@@ -72,30 +77,66 @@ const PostStats: FC<PostStatsProps> = ({ post, userId }) => {
       className={`flex justify-between items-center z-20 ${containerStyles}`}
     >
       <div className="flex gap-2 mr-5">
-        <img
-          src={`${
-            checkIsLiked(likes, userId)
-              ? "/assets/icons/liked.svg"
-              : "/assets/icons/like.svg"
-          }`}
-          alt="like"
-          width={20}
-          height={20}
-          onClick={(e) => handleLikePost(e)}
-          className="cursor-pointer"
-        />
+        {isAnonymous ? (
+          <AlertDialogWrapper
+            title="Sign Up to Like Posts"
+            description="Sign up to like and save posts. Create an account to get started."
+          >
+            <img
+              src={`${
+                checkIsLiked(likes, userId)
+                  ? "/assets/icons/liked.svg"
+                  : "/assets/icons/like.svg"
+              }`}
+              alt="like"
+              width={20}
+              height={20}
+              className="cursor-pointer"
+            />
+          </AlertDialogWrapper>
+        ) : (
+          <img
+            src={`${
+              checkIsLiked(likes, userId)
+                ? "/assets/icons/liked.svg"
+                : "/assets/icons/like.svg"
+            }`}
+            alt="like"
+            width={20}
+            height={20}
+            onClick={(e) => handleLikePost(e)}
+            className="cursor-pointer"
+          />
+        )}
         <p className="small-medium lg:base-medium">{likes.length}</p>
       </div>
 
       <div className="flex gap-2">
-        <img
-          src={isSaved ? "/assets/icons/saved.svg" : "/assets/icons/save.svg"}
-          alt="share"
-          width={20}
-          height={20}
-          className="cursor-pointer"
-          onClick={(e) => handleSavePost(e)}
-        />
+        {isAnonymous ? (
+          <AlertDialogWrapper
+            title="Sign Up to Save Posts"
+            description="Sign up to like and save posts. Create an account to get started."
+          >
+            <img
+              src={
+                isSaved ? "/assets/icons/saved.svg" : "/assets/icons/save.svg"
+              }
+              alt="share"
+              width={20}
+              height={20}
+              className="cursor-pointer"
+            />
+          </AlertDialogWrapper>
+        ) : (
+          <img
+            src={isSaved ? "/assets/icons/saved.svg" : "/assets/icons/save.svg"}
+            alt="share"
+            width={20}
+            height={20}
+            className="cursor-pointer"
+            onClick={(e) => handleSavePost(e)}
+          />
+        )}
       </div>
     </div>
   );

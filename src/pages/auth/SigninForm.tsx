@@ -21,11 +21,13 @@ import Loader from "@/components/shared/Loader";
 import { useToast } from "@/hooks/use-toast";
 import { useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/contexts/AuthContext";
+import { account } from "@/lib/appwrite/config";
+import { createGuestUser, deleteGuestUser } from "@/lib/utils";
 
 const SignInForm = () => {
   const { toast } = useToast();
 
-  const { checkAuthUser } = useUserContext();
+  const { checkAuthUser, setIsAnonymous } = useUserContext();
 
   const navigate = useNavigate();
 
@@ -44,7 +46,6 @@ const SignInForm = () => {
   });
 
   async function onSubmit(values: z.infer<typeof signInValidationSchema>) {
-
     const session = await signInUser({
       email: values.email,
       password: values.password,
@@ -74,6 +75,44 @@ const SignInForm = () => {
       });
 
       return;
+    }
+  }
+
+  async function createGuestAccount(
+    event: React.MouseEvent<HTMLButtonElement>
+  ): Promise<void> {
+
+    event.preventDefault();
+    const anonymousSession = await account.createAnonymousSession();
+    console.log("============== ANONYMOUS SESSION:",anonymousSession);
+    
+    createGuestUser();
+    setIsAnonymous(true);
+    
+    navigate("/");
+  }
+
+
+//--note: remove the below funcs. before commiting
+  async function handleLogout() {
+    try {
+      const deletedSession = await account.deleteSession("current");
+      console.log("============== DELETED SESSION:", deletedSession);
+
+      deleteGuestUser();
+      setIsAnonymous(false);
+
+      console.log(deletedSession);
+    } catch (error) {
+      if (error instanceof Error) console.log(error.message);
+    }
+  }
+  async function handleGetCurrentUser() {
+    try {
+      const curentUser = await account.get();
+      console.log("==============CURRENT USER:", curentUser);
+    } catch (error) {
+      if (error instanceof Error) console.log(error.message);
     }
   }
 
@@ -136,6 +175,13 @@ const SignInForm = () => {
               "Log In"
             )}
           </Button>
+          <Button
+            type="button"
+            onClick={createGuestAccount}
+            className="border-primary-500 border-[1px]"
+          >
+            Continue as a guest
+          </Button>
 
           <p className="text-small-regular text-light-2 text-center mt-2">
             Don't have an account?
@@ -148,6 +194,22 @@ const SignInForm = () => {
           </p>
         </form>
       </Form>
+
+      <button
+        type="button"
+        className="font-medium text-sm text-primary-500 mt-6 underline underline-offset-4"
+        onClick={handleLogout}
+      >
+        Logout
+      </button>
+
+      <button
+        type="button"
+        className="font-medium text-sm text-primary-500 mt-6 underline underline-offset-4"
+        onClick={handleGetCurrentUser}
+      >
+        Get current user
+      </button>
     </div>
   );
 };

@@ -57,8 +57,9 @@ const PostDetails = () => {
 
           <div className="post_details-info">
             <div className="flex-between w-full">
+              {/* --link replacement */}
               <Link
-                to={`/profile/${post?.creator.$id}`}
+                to=""
                 className="flex items-center gap-3">
                 <img
                   src={
