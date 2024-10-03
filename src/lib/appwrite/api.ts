@@ -549,11 +549,10 @@ export const getCurrentUserWithLogs = async () => {
   }
 };
 
-export const signOutUser = async () => {
+export const signOutUser = async (sessionId: string) => {
   console.log("\t------------ signOutUser ---------------");
   try {
-    const deletedSession = await account.deleteSession("current");
-    console.log("\tdeletedSession", deletedSession);
+    const deletedSession = await account.deleteSession(sessionId);
     return deletedSession;
   } catch (error) {
     if (error instanceof Error) {

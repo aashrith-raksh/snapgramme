@@ -22,7 +22,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/contexts/AuthContext";
 import { account } from "@/lib/appwrite/config";
-import { createGuestUser, deleteGuestUser } from "@/lib/utils";
+import { createGuestUser } from "@/lib/utils";
+import { useState } from "react";
 
 const SignInForm = () => {
   const { toast } = useToast();
@@ -31,11 +32,14 @@ const SignInForm = () => {
 
   const navigate = useNavigate();
 
+
   const {
     mutateAsync: signInUser,
     isPending: isSigningInUser,
     isError: isErrorInSignIn,
   } = useSignInAccount();
+
+  const [isCreatingGuestAccount, setIsCreatingGuestAccount] = useState(false)
 
   const form = useForm<z.infer<typeof signInValidationSchema>>({
     resolver: zodResolver(signInValidationSchema),
@@ -78,41 +82,27 @@ const SignInForm = () => {
     }
   }
 
-  async function createGuestAccount(
+ async function createGuestAccount(
     event: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> {
-
     event.preventDefault();
-    const anonymousSession = await account.createAnonymousSession();
-    console.log("============== ANONYMOUS SESSION:",anonymousSession);
-    
-    createGuestUser();
-    setIsAnonymous(true);
-    
-    navigate("/");
-  }
-
-
-//--note: remove the below funcs. before commiting
-  async function handleLogout() {
     try {
-      const deletedSession = await account.deleteSession("current");
-      console.log("============== DELETED SESSION:", deletedSession);
-
-      deleteGuestUser();
-      setIsAnonymous(false);
-
-      console.log(deletedSession);
+      setIsCreatingGuestAccount(true)
+      const anonymousSession = await account.createAnonymousSession();
+      console.log("============== ANONYMOUS SESSION:", anonymousSession);
+  
+      createGuestUser();
+      setIsAnonymous(true);
+  
+      navigate("/");
     } catch (error) {
-      if (error instanceof Error) console.log(error.message);
-    }
-  }
-  async function handleGetCurrentUser() {
-    try {
-      const curentUser = await account.get();
-      console.log("==============CURRENT USER:", curentUser);
-    } catch (error) {
-      if (error instanceof Error) console.log(error.message);
+      if(error instanceof Error){
+        console.log(error.message)
+      }
+      
+    }finally{
+      setIsCreatingGuestAccount(false)
+
     }
   }
 
@@ -180,7 +170,7 @@ const SignInForm = () => {
             onClick={createGuestAccount}
             className="border-primary-500 border-[1px]"
           >
-            Continue as a guest
+           Continue as a guest {isCreatingGuestAccount && <Loader/>}
           </Button>
 
           <p className="text-small-regular text-light-2 text-center mt-2">
@@ -194,22 +184,6 @@ const SignInForm = () => {
           </p>
         </form>
       </Form>
-
-      <button
-        type="button"
-        className="font-medium text-sm text-primary-500 mt-6 underline underline-offset-4"
-        onClick={handleLogout}
-      >
-        Logout
-      </button>
-
-      <button
-        type="button"
-        className="font-medium text-sm text-primary-500 mt-6 underline underline-offset-4"
-        onClick={handleGetCurrentUser}
-      >
-        Get current user
-      </button>
     </div>
   );
 };

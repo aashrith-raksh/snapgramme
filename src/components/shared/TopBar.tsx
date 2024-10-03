@@ -1,20 +1,41 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
-import { useSignOutAccount } from "@/lib/react-query/queriesAndMutations";
-import { useEffect } from "react";
 import { useUserContext } from "@/contexts/AuthContext";
+import { checkIsGuestUser, deleteGuestUser } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { useSignOutAccount } from "@/lib/react-query/queriesAndMutations";
 
 const TopBar = () => {
-  const { mutate: signOut, isSuccess } = useSignOutAccount();
-  const { user } = useUserContext();
+  const { user, setIsAnonymous } = useUserContext();
   const navigate = useNavigate();
+  const { mutateAsync: signOut } = useSignOutAccount();
+  const { toast } = useToast();
 
-  useEffect(() => {
-    if (isSuccess) {
-      console.log("\tlogged out successfully");
-      navigate("/signin");
+
+  async function handleLogout(): Promise<void> {
+    try {
+      const deletedSession = await signOut("current");
+      console.log("LOGOUT");
+      console.log("============ DELETED SESSION:", deletedSession);
+
+      if (checkIsGuestUser()) {
+        deleteGuestUser();
+        setIsAnonymous(false);
+      }
+
+      if (deletedSession) {
+        navigate("/signin");
+        return;
+      }
+  
+      toast({
+        variant: "destructive",
+        title: "Sign out failed. Please try again.",
+      });
+    } catch (error) {
+      if (error instanceof Error) console.log(error.message);
     }
-  }, [isSuccess]);
+  }
 
   return (
     <section className="topbar">
@@ -32,7 +53,7 @@ const TopBar = () => {
           <Button
             variant="ghost"
             className="shad-button_ghost"
-            onClick={() => signOut()}
+            onClick={handleLogout}
           >
             <img src="/assets/icons/logout.svg" alt="logout" />
           </Button>

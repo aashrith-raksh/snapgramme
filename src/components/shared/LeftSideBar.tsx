@@ -4,24 +4,39 @@ import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { useUserContext } from "@/contexts/AuthContext";
 import Loader from "./Loader";
-import { account } from "@/lib/appwrite/config";
-import { deleteGuestUser } from "@/lib/utils";
+import { checkIsGuestUser, deleteGuestUser } from "@/lib/utils";
+import { useSignOutAccount } from "@/lib/react-query/queriesAndMutations";
+import { useToast } from "@/hooks/use-toast";
 
 const LeftSideBar = () => {
   const navigate = useNavigate();
 
   const { pathname } = useLocation();
-    const { user, isAnonymous, setIsAnonymous } = useUserContext();
+  const { user, isAnonymous, setIsAnonymous, isLoading } = useUserContext();
+  const { mutateAsync: signOut } = useSignOutAccount();
+  const { toast } = useToast();
+
 
   async function handleLogout(): Promise<void> {
     try {
-      const deletedSession = await account.deleteSession("current");
+      const deletedSession = await signOut("current");
       console.log("LOGOUT");
-      console.log("============ DELETED SESSION:",deletedSession);
-      deleteGuestUser();
-      setIsAnonymous(false);
+      console.log("============ DELETED SESSION:", deletedSession);
 
-      navigate("signin");
+      if (checkIsGuestUser()) {
+        deleteGuestUser();
+        setIsAnonymous(false);
+      }
+
+      if (deletedSession) {
+        navigate("/signin");
+        return;
+      }
+  
+      toast({
+        variant: "destructive",
+        title: "Sign out failed. Please try again.",
+      });
     } catch (error) {
       if (error instanceof Error) console.log(error.message);
     }
@@ -38,9 +53,8 @@ const LeftSideBar = () => {
             height={36}
           />
         </Link>
-        {/* {isLoading || !user.email */}
 
-        {false ? (
+        {isLoading || (!isAnonymous && !user.email) ? (
           <div className="h-14">
             <Loader />
           </div>
@@ -52,8 +66,10 @@ const LeftSideBar = () => {
               className="h-14 w-14 rounded-full"
             />
             <div className="flex flex-col">
-              <p className="body-bold">{isAnonymous? "Guest":user.name}</p>
-              <p className="small-regular text-light-3">@{isAnonymous? "guest":user.username}</p>
+              <p className="body-bold">{isAnonymous ? "Guest" : user.name}</p>
+              <p className="small-regular text-light-3">
+                @{isAnonymous ? "guest" : user.username}
+              </p>
             </div>
           </Link>
         )}

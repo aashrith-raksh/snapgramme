@@ -26,7 +26,6 @@ import {
   updateProfile,
 } from "../appwrite/api";
 import { QUERY_KEYS } from "./queryKeys";
-import { UpdateProfile } from "@/pages";
 
 export const useCreateUserAccount = () => {
   return useMutation({
@@ -41,7 +40,7 @@ export const useSignInAccount = () => {
 };
 export const useSignOutAccount = () => {
   return useMutation({
-    mutationFn: signOutUser,
+    mutationFn: (sessionId: string) => signOutUser(sessionId),
   });
 };
 

@@ -1,8 +1,8 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 export function formatDateString(dateString: string) {
@@ -55,13 +55,59 @@ export const checkIsLiked = (likeList: string[], userId: string) => {
 };
 
 export const createGuestUser = () => {
-  localStorage.setItem('isGuest', 'true')
-}
+  localStorage.setItem("isGuest", "true");
+};
 
 export const deleteGuestUser = () => {
-  localStorage.removeItem('isGuest');
-}
+  localStorage.removeItem("isGuest");
+};
 
 export const checkIsGuestUser = () => {
-  return localStorage.getItem('isGuest') === "true";
-}
+  return localStorage.getItem("isGuest") === "true";
+};
+
+// export async function handleLogout(): Promise<void> {
+//   const { mutate: signOut, isSuccess } = useSignOutAccount();
+//   const navigate = useNavigate();
+//   const { setIsAnonymous } = useUserContext();
+//   const { toast } = useToast();
+
+//   try {
+//     const deletedSession = await signOut("current");
+//     console.log("LOGOUT");
+//     console.log("============ DELETED SESSION:", deletedSession);
+
+//     if (checkIsGuestUser()) {
+//       deleteGuestUser();
+//       setIsAnonymous(false);
+//     }
+
+//     if (isSuccess) {
+//       navigate("/signin");
+//       return;
+//     }
+
+//     toast({
+//       variant: "destructive",
+//       title: "Sign Out failed. Please try again.",
+//     });
+//   } catch (error) {
+//     if (error instanceof Error) console.log(error.message);
+//   }
+// }
+
+// export async function createGuestAccount(
+//   event: React.MouseEvent<HTMLButtonElement>
+// ): Promise<void> {
+//   const navigate = useNavigate();
+//   const { setIsAnonymous } = useUserContext();
+
+//   event.preventDefault();
+//   const anonymousSession = await account.createAnonymousSession();
+//   console.log("============== ANONYMOUS SESSION:", anonymousSession);
+
+//   createGuestUser();
+//   setIsAnonymous(true);
+
+//   navigate("/");
+// }

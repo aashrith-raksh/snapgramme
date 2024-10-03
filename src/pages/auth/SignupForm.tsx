@@ -24,6 +24,9 @@ import {
   useSignInAccount,
 } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/contexts/AuthContext";
+import { createGuestUser } from "@/lib/utils";
+import { account } from "@/lib/appwrite/config";
+import { useState } from "react";
 
 const SignUpForm = () => {
   const { toast } = useToast();
@@ -33,14 +36,14 @@ const SignUpForm = () => {
     isError: isErrorInCreatingUserAccount,
   } = useCreateUserAccount();
 
-  const {
-    mutateAsync: signInUser,
-    isError: isErrorInSignIn,
-  } = useSignInAccount();
+  const { mutateAsync: signInUser, isError: isErrorInSignIn } =
+    useSignInAccount();
 
-  const { checkAuthUser } = useUserContext();
+  const { checkAuthUser, setIsAnonymous } = useUserContext();
 
   const navigate = useNavigate();
+
+  const [isCreatingGuestAccount, setIsCreatingGuestAccount] = useState(false)
 
   const form = useForm<z.infer<typeof signUpValidationSchema>>({
     resolver: zodResolver(signUpValidationSchema),
@@ -96,6 +99,30 @@ const SignUpForm = () => {
     }
   }
 
+  async function createGuestAccount(
+    event: React.MouseEvent<HTMLButtonElement>
+  ): Promise<void> {
+    event.preventDefault();
+    try {
+      setIsCreatingGuestAccount(true)
+      const anonymousSession = await account.createAnonymousSession();
+      console.log("============== ANONYMOUS SESSION:", anonymousSession);
+  
+      createGuestUser();
+      setIsAnonymous(true);
+  
+      navigate("/");
+    } catch (error) {
+      if(error instanceof Error){
+        console.log(error.message)
+      }
+      
+    }finally{
+      setIsCreatingGuestAccount(false)
+
+    }
+  }
+
   return (
     <div className="sm:w-420 flex-center flex-col">
       <img src="/assets/images/logo.svg" alt="logo" />
@@ -117,11 +144,7 @@ const SignUpForm = () => {
               <FormItem>
                 <FormLabel>Name</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Name"
-                    className="shad-input"
-                    {...field}
-                  />
+                  <Input placeholder="Name" className="shad-input" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -188,6 +211,13 @@ const SignUpForm = () => {
             ) : (
               "Sign Up"
             )}
+          </Button>
+          <Button
+            type="button"
+            onClick={createGuestAccount}
+            className="border-primary-500 border-[1px]"
+          >
+            Continue as a guest {isCreatingGuestAccount && <Loader/>}
           </Button>
 
           <p className="text-small-regular text-light-2 text-center mt-2">
