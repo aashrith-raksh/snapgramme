@@ -24,7 +24,7 @@ const TopCreators = () => {
   
         <div className="flex flex-wrap gap-6 justify-between bg-dark-3 min-w-full px-6">
           {creators?.documents.map((creator: Models.Document) => (
-            <UserCard creator={creator} />
+            <UserCard creator={creator} key={creator.$id}/>
           ))}
         </div>
       </section>

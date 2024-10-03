@@ -47,11 +47,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     console.log(">>>>>> 1. AUTH PROVIDER MOUNTED")
-  }, [])
-
-
-  useEffect(() => {
-    // console.log("\nEFFECT RUNNING(AuthContext)...");
     console.log(">>>>>> 2. CHECKING FOR COOKIE FALLBACK")
 
     const cookieFallback = localStorage.getItem("cookieFallback");
@@ -64,6 +59,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       navigate("/signin");
       return;
     }
+
+    console.log("\tAuthenticated...checkAuthUser()");
+
 
     checkAuthUser();
   }, []);
@@ -84,7 +82,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (currentAccount) {
         // console.log("\tcurrentAccount:", currentAccount);
         setUser({
-          id: currentAccount.$id, //--note: might be wrong. $id would reference documentId and not accountId
+          id: currentAccount.$id, 
           name: currentAccount.name,
           username: currentAccount.username,
           email: currentAccount.email,
