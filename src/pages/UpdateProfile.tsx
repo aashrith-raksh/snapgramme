@@ -1,29 +1,9 @@
 import { useUserContext } from "@/contexts/AuthContext";
-import { editProfileSchema } from "@/lib/validations";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import {
-  useGetCurrentUser,
-  useGetRecentPosts,
-  useUpdateProfileMutation,
-} from "@/lib/react-query/queriesAndMutations";
+import { useGetRecentPosts } from "@/lib/react-query/queriesAndMutations";
 import Loader from "@/components/shared/Loader";
 import PostStats from "@/components/shared/PostStats";
 import { Link } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import EditProfileForm from "@/components/forms/EditProfileForm";
 
 const EditProfile = () => {
   const { user } = useUserContext();
@@ -43,7 +23,7 @@ const EditProfile = () => {
 
         <div className="flex gap-4 w-full justify-start items-center max-w-5xl">
           <img
-            src={user.imageUrl}
+            src={user.imageUrl || "/assets/icons/profile-placeholder.svg"}
             width={100}
             height={100}
             alt="profile pic"
@@ -54,7 +34,6 @@ const EditProfile = () => {
 
         <EditProfileForm />
       </div>
-      {/* TOP POSTS SIDEBAR */}
       <TopPosts />
     </div>
   );
@@ -62,138 +41,7 @@ const EditProfile = () => {
 
 export default EditProfile;
 
-const EditProfileForm = () => {
-  const { data: user, isPending: isLoadingUser } = useGetCurrentUser();
-  const { toast } = useToast();
-  const {
-    mutateAsync: updateProfie,
-    isPending: isUpdatingProfile,
-    isError: isErrorUpdating,
-  } = useUpdateProfileMutation();
 
-  const form = useForm<z.infer<typeof editProfileSchema>>({
-    resolver: zodResolver(editProfileSchema),
-    defaultValues: {
-      name: user?.name || "",
-      username: user?.username || "",
-      email: user?.email || "",
-      bio: user?.bio || "",
-    },
-  });
-
-  async function onSubmit(values: z.infer<typeof editProfileSchema>) {
-    console.log("SUBMITTED");
-    const newUserProfileDetails = { ...values };
-    const updatedProfile = await updateProfie({
-      newUserProfileDetails,
-      userId: user!.$id,
-    });
-
-    if (!updatedProfile || isErrorUpdating) {
-      toast({
-        variant: "destructive",
-        title: `Updating profile details failed. Please try again.`,
-      });
-
-      return;
-    }
-
-    toast({
-      variant: "destructive",
-      title: `Profile details updated`,
-    });
-
-    return;
-  }
-
-  return (
-    <>
-      {isLoadingUser && <Loader />}
-      <Form {...form}>
-        <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          className="flex flex-col gap-9 w-full  max-w-5xl"
-        >
-          <FormField
-            control={form.control}
-            name="name"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="shad-form_label">Name</FormLabel>
-                <FormControl>
-                  <Input type="text" className="shad-input" {...field} />
-                </FormControl>
-                <FormMessage className="shad-form_message" />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="username"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="shad-form_label">Username</FormLabel>
-                <FormControl>
-                  <Input type="text" className="shad-input" {...field} />
-                </FormControl>
-                <FormMessage className="shad-form_message" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="shad-form_label">Email</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Art, Expression, Learn"
-                    type="email"
-                    className="shad-input"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage className="shad-form_message" />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="bio"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="shad-form_label">Bio</FormLabel>
-                <FormControl>
-                  <Textarea
-                    className="shad-textarea custom-scrollbar"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage className="shad-form_message" />
-              </FormItem>
-            )}
-          />
-
-          <div className="flex gap-4 items-center justify-end">
-            <Button type="button" className="shad-button_dark_4">
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              className="shad-button_primary whitespace-nowrap"
-              disabled={isUpdatingProfile}
-            >
-              {(isUpdatingProfile) && <Loader />}
-              Update
-            </Button>
-          </div>
-        </form>
-      </Form>
-    </>
-  );
-};
 
 const TopPosts = () => {
   const {
@@ -202,7 +50,7 @@ const TopPosts = () => {
     isError: isErrorPosts,
   } = useGetRecentPosts();
 
-  const { user } = useUserContext();
+  const { user, isAnonymous } = useUserContext();
 
   return isPostsLoading ? (
     <Loader />
@@ -217,12 +65,18 @@ const TopPosts = () => {
           className="h-[130px] w-[130px] rounded-full "
         />
         <div className="flex flex-col gap-3 items-center">
-          <h1 className="text-3xl font-bold">{user.name}</h1>
-          <p className="small-regular text-light-3">@{user.username}</p>
+          <h1 className="text-3xl font-bold">
+            {isAnonymous ? "Guest" : user?.name}
+          </h1>
+          <p className="small-regular text-light-3">
+            @{isAnonymous ? "guest" : user?.username}
+          </p>
         </div>
       </div>
 
-      <h3 className="font-semibold text-xl mt-14 mb-7">Top posts by you</h3>
+      <h3 className="font-semibold text-xl mt-14 mb-7">
+        {isAnonymous ? "Popular posts" : "Top posts by you"}
+      </h3>
 
       <ul className="w-full grid grid-cols-1 gap-8">
         {posts?.documents.map((post) => {
@@ -258,6 +112,3 @@ const TopPosts = () => {
     </section>
   );
 };
-function checkAuthUser() {
-  throw new Error("Function not implemented.");
-}
