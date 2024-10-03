@@ -4,6 +4,7 @@ import { IUser } from "@/lib/types";
 import { getCurrentUser } from "@/lib/appwrite/api";
 import { useNavigate } from "react-router-dom";
 import { checkIsGuestUser } from "@/lib/utils";
+import { useGetUsers } from "@/lib/react-query/queriesAndMutations";
 
 export const INITIAL_USER = {
   id: "",
@@ -44,10 +45,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isAnonymous, setIsAnonymous] = useState(checkIsGuestUser());
   const navigate = useNavigate();
+  const {refetch: fetchTopCreators} = useGetUsers();
 
   useEffect(() => {
-    console.log(">>>>>> 1. AUTH PROVIDER MOUNTED")
-    console.log(">>>>>> 2. CHECKING FOR COOKIE FALLBACK")
+    console.log(">>>>>> 1. AUTH PROVIDER MOUNTED");
+    console.log(">>>>>> 2. CHECKING FOR COOKIE FALLBACK");
 
     const cookieFallback = localStorage.getItem("cookieFallback");
     if (
@@ -62,27 +64,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     console.log("\tAuthenticated...checkAuthUser()");
 
-
     checkAuthUser();
   }, []);
 
   useEffect(() => {
-    console.log("\n>>>>>> 3. SETTING isAnonymous")
-    console.log("\tisAnonymous: ", isAnonymous)
-    console.log("\n")
-  },[isAnonymous])
+    fetchTopCreators();
+  },[]);
 
-  
+  useEffect(() => {
+    console.log("\n>>>>>> 3. SETTING isAnonymous");
+    console.log("\tisAnonymous: ", isAnonymous);
+    console.log("\n");
+  }, [isAnonymous]);
+
   const checkAuthUser = async () => {
-    // console.log("\n\t--------- checkAuthUser ---------");
+    console.log("\n\t--------- checkAuthUser ---------");
 
     setIsLoading(true);
     try {
       const currentAccount = await getCurrentUser();
       if (currentAccount) {
-        // console.log("\tcurrentAccount:", currentAccount);
+        console.log("\tcurrentAccount:", currentAccount);
         setUser({
-          id: currentAccount.$id, 
+          id: currentAccount.$id,
           name: currentAccount.name,
           username: currentAccount.username,
           email: currentAccount.email,
