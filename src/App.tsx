@@ -16,6 +16,7 @@ import {
   UpdateProfile,
   Home,
 } from "./pages";
+import Messages from "./pages/Messages";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
           <Route path="/posts/:id" element={<PostDetails />} />
           <Route path="/profile/:id/*" element={<Profile />} />
           <Route path="/update-profile" element={<UpdateProfile />} />
+          <Route path="/messages" element={<Messages />} />
           {/* <Route path="/update-profile/:id" element={<UpdateProfile />} /> */}
         </Route>
       </Routes>
