@@ -8,8 +8,11 @@ export enum QUERY_KEYS {
 
   // USER KEYS
   GET_CURRENT_USER = "getCurrentUser",
+  GET_USER_BY_USERNAME = "findUserByUsername",
+
   //  SEARCH KEYS
   SEARCH_POSTS = "getSearchPosts",
   GET_USER_POSTS = "getUserPosts",
   GET_SAVED_POSTS = "getSavedPosts",
+  GET_RECENT_CONVERSATIONS = "getRecentCoversations",
 }

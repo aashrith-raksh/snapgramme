@@ -2,6 +2,7 @@ import { ID, Query, ImageGravity } from "appwrite";
 import { account, appwriteConfig, avatar, db, storage } from "./config";
 import { INewPost, INewUser, IUpdatePost, IUpdateProfile, IUserInDB } from "../types";
 import { UpdateProfile } from "@/pages";
+import { isGeneratorFunction } from "util/types";
 
 export const createUserAccount = async (userDetails: INewUser) => {
   try {
@@ -562,3 +563,42 @@ export const signOutUser = async (sessionId: string) => {
     return undefined;
   }
 };
+
+// ============================== FIND USERS BY USERNAMES
+export async function findUserByUsername(userName: string) {
+  try {
+    const posts = await db.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      [Query.search("username", userName)]
+    );
+
+    if (!posts) throw new Error("Error while finding user by username.");
+
+    return posts;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+// ============================== GET RECENT CONVERSATIONS
+export async function getRecentConversations(userId: string) {
+  const query = [
+    Query.equal("participant1", userId),
+    Query.equal("participant2", userId)
+  ];
+  try {
+    const conversations = await db.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.conversationsCollectionId,
+      [Query.or(query)]
+    );
+
+    if (!conversations) throw new Error("Errror while fetching convos");
+
+    return conversations;
+  } catch (error) {
+    if(error instanceof Error)
+    console.log(error.message);
+  }
+}

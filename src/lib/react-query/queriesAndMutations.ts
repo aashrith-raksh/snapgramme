@@ -10,9 +10,11 @@ import {
   createUserAccount,
   deletePost,
   deleteSavedPost,
+  findUserByUsername,
   getCurrentUser,
   getInfinitePosts,
   getPostById,
+  getRecentConversations,
   getRecentPosts,
   getSavedPosts,
   getUserPosts,
@@ -224,6 +226,24 @@ export const useGetUsers = (limit?: number) => {
   });
 };
 
+export const useFindUserByUsername = (userName: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_USER_BY_USERNAME, userName],
+    queryFn: () => findUserByUsername(userName),
+    enabled: !!userName,
+  });
+};
+
+export const useGetRecentConversations = (userId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_RECENT_CONVERSATIONS, userId],
+    queryFn: () => getRecentConversations(userId),
+    enabled: !!userId,
+  });
+};
+
+
+
 export const useUpdateProfileMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -231,9 +251,9 @@ export const useUpdateProfileMutation = () => {
       newUserProfileDetails: IUpdateProfile;
       userId: string;
     }) => {
-      const {newUserProfileDetails, userId} = details
+      const { newUserProfileDetails, userId } = details;
       const updatedProfile = await updateProfile(newUserProfileDetails, userId);
-      return updatedProfile
+      return updatedProfile;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({
