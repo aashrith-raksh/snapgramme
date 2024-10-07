@@ -2,6 +2,7 @@ import { useGetUsers } from "@/lib/react-query/queriesAndMutations";
 import { Models } from "appwrite";
 import Loader from "./Loader";
 import { Link } from "react-router-dom";
+import { isValidUrl } from "@/lib/utils";
 
 const TopCreators = () => {
   const {
@@ -42,6 +43,8 @@ export const UserCard = ({
   creator: Models.Document;
   classes?: string;
 }) => {
+  const defaultProfileImage = "/assets/icons/profile-placeholder.svg";
+
   return (
     <div
       className={`min-h-[190px] min-w-[190px] bg-dark-3 ${classes} rounded-2xl border-off-white/10 border-[1px]`}
@@ -49,7 +52,11 @@ export const UserCard = ({
       <div className="flex flex-col px-8 py-6 items-center justify-between gap-4">
         <Link to={""}>
           <img
-            src={creator.imageUrl}
+            src={
+              isValidUrl(creator.imageUrl)
+                ? creator.imageUrl
+                : defaultProfileImage
+            }
             height={54}
             width={54}
             className="rounded-full"

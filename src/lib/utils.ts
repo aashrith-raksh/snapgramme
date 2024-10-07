@@ -50,6 +50,18 @@ export const multiFormatDateString = (timestamp: string = ""): string => {
   }
 };
 
+export const isValidUrl = (url: string) => {
+  try {
+    new URL(url);
+    return true;
+  } catch (e) {
+    if (e instanceof Error) {
+      // console.log(e.message);
+    }
+    return false;
+  }
+};
+
 export const checkIsLiked = (likeList: string[], userId: string) => {
   return likeList.includes(userId);
 };
