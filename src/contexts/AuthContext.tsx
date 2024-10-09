@@ -48,8 +48,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const {refetch: fetchTopCreators} = useGetUsers();
 
   useEffect(() => {
-    console.log(">>>>>> 1. AUTH PROVIDER MOUNTED");
-    console.log(">>>>>> 2. CHECKING FOR COOKIE FALLBACK");
+    // console.log(">>>>>> 1. AUTH PROVIDER MOUNTED");
+    // console.log(">>>>>> 2. CHECKING FOR COOKIE FALLBACK");
 
     const cookieFallback = localStorage.getItem("cookieFallback");
     if (
@@ -57,12 +57,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       cookieFallback === null ||
       cookieFallback === undefined
     ) {
-      console.log("\tNot Authenticated");
+      // console.log("\tNot Authenticated");
       navigate("/signin");
       return;
     }
 
-    console.log("\tAuthenticated...checkAuthUser()");
+    // console.log("\tAuthenticated...checkAuthUser()");
 
     checkAuthUser();
   }, []);
@@ -72,19 +72,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   },[]);
 
   useEffect(() => {
-    console.log("\n>>>>>> 3. SETTING isAnonymous");
-    console.log("\tisAnonymous: ", isAnonymous);
-    console.log("\n");
+    // console.log("\n>>>>>> 3. SETTING isAnonymous");
+    // console.log("\tisAnonymous: ", isAnonymous);
+    // console.log("\n");
   }, [isAnonymous]);
 
   const checkAuthUser = async () => {
-    console.log("\n\t--------- checkAuthUser ---------");
+    // console.log("\n\t--------- checkAuthUser ---------");
 
     setIsLoading(true);
     try {
       const currentAccount = await getCurrentUser();
       if (currentAccount) {
-        console.log("\tcurrentAccount:", currentAccount);
+        // console.log("\tcurrentAccount:", currentAccount);
         setUser({
           id: currentAccount.$id,
           name: currentAccount.name,

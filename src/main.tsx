@@ -5,12 +5,15 @@ import QueryProvider from "./lib/react-query/QueryProvider.tsx";
 import { BrowserRouter } from "react-router-dom";
 import "./globals.css";
 import App from "./App.tsx";
+import ConvoProvider from "./contexts/ConvoContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
     <QueryProvider>
       <AuthProvider>
-        <App />
+        <ConvoProvider>
+          <App />
+        </ConvoProvider>
       </AuthProvider>
     </QueryProvider>
   </BrowserRouter>

@@ -14,5 +14,8 @@ export enum QUERY_KEYS {
   SEARCH_POSTS = "getSearchPosts",
   GET_USER_POSTS = "getUserPosts",
   GET_SAVED_POSTS = "getSavedPosts",
+
+  //  CONVERSATION KEYS
   GET_RECENT_CONVERSATIONS = "getRecentCoversations",
+  GET_CONVERSATION_MSGS = "getConversationMsgs",
 }

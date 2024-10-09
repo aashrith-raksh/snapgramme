@@ -1,3 +1,4 @@
+import { Models } from "appwrite";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -76,6 +77,25 @@ export const deleteGuestUser = () => {
 
 export const checkIsGuestUser = () => {
   return localStorage.getItem("isGuest") === "true";
+};
+
+export const separateMessagesByUsername = (
+  msgsDocs: Models.Document[],
+  currentUserId: string
+) => {
+  let selfMsgs: Models.Document[] = [];
+  let receiverMsgs: Models.Document[] = [];
+
+  msgsDocs.forEach((msg) => {
+    if (msg.senderId.$id === currentUserId) {
+      selfMsgs.push(msg);
+    } else {
+      receiverMsgs.push(msg);
+      receiverMsgs.push(msg);
+    }
+  });
+
+  return { selfMsgs, receiverMsgs };
 };
 
 // export async function handleLogout(): Promise<void> {

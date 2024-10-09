@@ -3,14 +3,22 @@ import {
   useQuery,
   useQueryClient,
   useInfiniteQuery,
+  QueryClient,
 } from "@tanstack/react-query";
-import { INewPost, INewUser, IUpdatePost, IUpdateProfile } from "../types";
+import {
+  INewMessage,
+  INewPost,
+  INewUser,
+  IUpdatePost,
+  IUpdateProfile,
+} from "../types";
 import {
   createPost,
   createUserAccount,
   deletePost,
   deleteSavedPost,
   findUserByUsername,
+  getConversationsMessages,
   getCurrentUser,
   getInfinitePosts,
   getPostById,
@@ -22,6 +30,7 @@ import {
   likePost,
   savePost,
   searchPosts,
+  sendMessage,
   signInUser,
   signOutUser,
   updatePost,
@@ -234,16 +243,6 @@ export const useFindUserByUsername = (userName: string) => {
   });
 };
 
-export const useGetRecentConversations = (userId: string) => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.GET_RECENT_CONVERSATIONS, userId],
-    queryFn: () => getRecentConversations(userId),
-    enabled: !!userId,
-  });
-};
-
-
-
 export const useUpdateProfileMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
@@ -262,3 +261,51 @@ export const useUpdateProfileMutation = () => {
     },
   });
 };
+
+// ============================================================
+// MESSAGE MUTATTIONS & QUERIES
+// ============================================================
+
+export const useGetRecentConversations = (userId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_RECENT_CONVERSATIONS, userId],
+    queryFn: () => getRecentConversations(userId),
+    enabled: !!userId,
+  });
+};
+
+export const useGetConversationMessages = (conversationId: string) => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_CONVERSATION_MSGS, conversationId],
+    queryFn: () => {
+      console.log("useGetConversatoinMessages() called!");
+      return getConversationsMessages(conversationId);
+    },
+    enabled: !!conversationId,
+  });
+};
+
+export const useSendMessageMutation = () => {
+  return useMutation({
+    mutationFn: ({
+      msgData,
+      senderName,
+    }: {
+      msgData: INewMessage;
+      senderName: string;
+    }) => sendMessage(msgData, senderName),
+  });
+};
+// export const useSendMessageMutation = (conversationId: string) => {
+//   const queryClient = useQueryClient();
+//   return useMutation({
+//     mutationFn: (msgData: INewMessage) => sendMessage(msgData),
+//     onSuccess: () => {
+//       if (conversationId !== "") {
+//         queryClient.invalidateQueries({
+//           queryKey: [QUERY_KEYS.GET_CONVERSATION_MSGS, conversationId], //this invalidates the msgs fetched for some other convoId.
+//         });
+//       }
+//     },
+//   });
+// };

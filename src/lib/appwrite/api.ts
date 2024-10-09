@@ -1,8 +1,16 @@
 import { ID, Query, ImageGravity } from "appwrite";
 import { account, appwriteConfig, avatar, db, storage } from "./config";
-import { INewPost, INewUser, IUpdatePost, IUpdateProfile, IUserInDB } from "../types";
+import {
+  INewConversation,
+  INewMessage,
+  INewPost,
+  INewUser,
+  IUpdateConversation,
+  IUpdatePost,
+  IUpdateProfile,
+  IUserInDB,
+} from "../types";
 import { UpdateProfile } from "@/pages";
-import { isGeneratorFunction } from "util/types";
 
 export const createUserAccount = async (userDetails: INewUser) => {
   try {
@@ -158,7 +166,7 @@ export async function deleteFile(fileId: string) {
   }
 }
 
-// ============================== GET POPULAR POSTS (BY HIGHEST LIKE COUNT)
+// ============================== GET RECENT POSTS
 export async function getRecentPosts() {
   try {
     const posts = db.listDocuments(
@@ -387,8 +395,7 @@ export async function getSavedPosts(userId: string) {
 
     return savedPosts;
   } catch (error) {
-    if(error instanceof Error)
-    console.log(error.message);
+    if (error instanceof Error) console.log(error.message);
   }
 }
 
@@ -460,22 +467,23 @@ export const signInUser = async (userCredentials: {
   }
 };
 
-export const updateProfile = async (newUserProfileDetails: IUpdateProfile, userId: string) => {
+export const updateProfile = async (
+  newUserProfileDetails: IUpdateProfile,
+  userId: string
+) => {
   try {
     const updatedProfile = await db.updateDocument(
       appwriteConfig.databaseId,
       appwriteConfig.userCollectionId,
       userId,
       {
-        ...newUserProfileDetails
+        ...newUserProfileDetails,
       }
-    )
+    );
 
     if (!UpdateProfile) throw new Error("Error while updating profile details");
 
     return updatedProfile;
-
-
   } catch (error) {
     console.log("------- signInUser --------");
 
@@ -484,9 +492,8 @@ export const updateProfile = async (newUserProfileDetails: IUpdateProfile, userI
     } else {
       console.error("\tUnkniown error occured");
     }
-    
   }
-}
+};
 export const getCurrentUser = async () => {
   try {
     const currentLoggedInAccount = await account.get();
@@ -581,11 +588,57 @@ export async function findUserByUsername(userName: string) {
   }
 }
 
+// ============================================================
+// CONVERSATIONS
+// ============================================================
+
+// ============================== CREATE CONVESATION DOC
+export async function createNewConversation(newConvoDetails: INewConversation) {
+  // console.log(">>>>>> createNewConversation()")
+  try {
+    const newConversationDoc = await db.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.conversationsCollectionId,
+      ID.unique(),
+      newConvoDetails
+    );
+
+    if (!newConversationDoc)
+      throw new Error("Errror while creating new conversation doc");
+
+    console.log("=========== NEW CONVERSATION:", newConversationDoc);
+    return newConversationDoc;
+  } catch (error) {
+    if (error instanceof Error) console.log(error.message);
+  }
+}
+
+export async function updateConversation(
+  convoId: string,
+  dataToUpate: IUpdateConversation
+) {
+  // console.log(">>>>>> createNewConversation()")
+  try {
+    const updatedConvoDoc = await db.updateDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.conversationsCollectionId,
+      convoId,
+      dataToUpate
+    );
+
+    if (!updatedConvoDoc) throw new Error("Errror while updating conversation");
+
+    return updatedConvoDoc;
+  } catch (error) {
+    if (error instanceof Error) console.log(error.message);
+  }
+}
+
 // ============================== GET RECENT CONVERSATIONS
 export async function getRecentConversations(userId: string) {
   const query = [
     Query.equal("participant1", userId),
-    Query.equal("participant2", userId)
+    Query.equal("participant2", userId),
   ];
   try {
     const conversations = await db.listDocuments(
@@ -598,7 +651,62 @@ export async function getRecentConversations(userId: string) {
 
     return conversations;
   } catch (error) {
-    if(error instanceof Error)
-    console.log(error.message);
+    if (error instanceof Error) console.log(error.message);
   }
 }
+
+export async function getConversationsMessages(conversationId: string) {
+  // console.log(">>>>>> getConversationsMessages()")
+  try {
+    const messages = await db.listDocuments(
+      appwriteConfig.databaseId,
+      appwriteConfig.messagesCollectionId,
+      [
+        Query.equal("conversationId", conversationId),
+        Query.limit(10),
+        Query.orderDesc("createdAt"),
+      ]
+    );
+
+    if (!messages) throw new Error("Errror while fetching messages");
+
+    // console.log("=========== MESSAGES:",messages)
+    return messages;
+  } catch (error) {
+    if (error instanceof Error) console.log(error.message);
+  }
+}
+
+// ============================================================
+// MESSAGES
+// ============================================================
+
+export const sendMessage = async (msgData: INewMessage, senderName: string) => {
+  // console.log(">>>>>> sendMessages()")
+  try {
+    const msgDocId = ID.unique();
+
+    const newMessage = await db.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.messagesCollectionId,
+      msgDocId, //unique msg ID for each message
+      msgData
+    );
+
+    if (!newMessage) throw new Error("Errror while fetching messages");
+
+    const { conversationId, createdAt } = msgData;
+    const updatedConvoDoc = await updateConversation(conversationId!, {
+      lastMessageId: msgDocId,
+      lastUpdated: createdAt,
+      lastMsgIdString: msgDocId,
+      lastMsgSenderName: senderName,
+      lastMsgBody: msgData.body,
+    });
+
+    // console.log("=========== UDPATED CONVERSATION:", updatedConvoDoc);
+    return newMessage;
+  } catch (error) {
+    if (error instanceof Error) console.log(error.message);
+  }
+};
