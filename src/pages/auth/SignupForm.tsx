@@ -65,7 +65,7 @@ const SignUpForm = () => {
       });
       return;
     }
-    console.log("User saved to DB successfully");
+    // console.log("User saved to DB successfully");
 
     const session = await signInUser({
       email: values.email,
@@ -73,7 +73,7 @@ const SignUpForm = () => {
     });
 
     if (isErrorInSignIn || !session) {
-      console.log("Invalid session");
+      // console.log("Invalid session");
       toast({
         variant: "destructive",
         title: "Sing in failed. Please try again.",
@@ -81,13 +81,13 @@ const SignUpForm = () => {
       return;
     }
 
-    console.log("\nsession: ", session);
-    console.log("user session created");
+    // console.log("\nsession: ", session);
+    // console.log("user session created");
 
     const isLoggedIn = await checkAuthUser();
 
     if (isLoggedIn) {
-      console.log("\nlogged In....Redirectig to Homepage");
+      // console.log("\nlogged In....Redirectig to Homepage");
       navigate("/");
     } else {
       toast({
@@ -106,7 +106,7 @@ const SignUpForm = () => {
     try {
       setIsCreatingGuestAccount(true)
       const anonymousSession = await account.createAnonymousSession();
-      console.log("============== ANONYMOUS SESSION:", anonymousSession);
+      // console.log("============== ANONYMOUS SESSION:", anonymousSession);
   
       createGuestUser();
       setIsAnonymous(true);

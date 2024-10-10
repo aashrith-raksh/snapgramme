@@ -19,8 +19,8 @@ const LeftSideBar = () => {
   async function handleLogout(): Promise<void> {
     try {
       const deletedSession = await signOut("current");
-      console.log("LOGOUT");
-      console.log("============ DELETED SESSION:", deletedSession);
+      // console.log("LOGOUT");
+      // console.log("============ DELETED SESSION:", deletedSession);
 
       if (checkIsGuestUser()) {
         deleteGuestUser();
@@ -53,8 +53,9 @@ const LeftSideBar = () => {
           />
         </Link>
 
-        {isLoading || (!isAnonymous && !user.email) ? (
+        {isLoading || (!isAnonymous && !user) ? (
           <div className="h-14">
+            <p>{isLoading}</p>
             <Loader />
           </div>
         ) : (
@@ -62,7 +63,7 @@ const LeftSideBar = () => {
             <img
               src={user.imageUrl || "/assets/icons/profile-placeholder.svg"}
               alt="profile"
-              className="h-14 w-14 rounded-full"
+              className="h-14 w-14 rounded-full object-cover"
             />
             <div className="flex flex-col">
               <p className="body-bold">{isAnonymous ? "Guest" : user.name}</p>
@@ -95,7 +96,9 @@ const LeftSideBar = () => {
                       viewBox="0 0 24 24"
                       strokeWidth={1.5}
                       stroke="currentColor"
-                      className="size-6 my-auto"
+                      className={`group-hover:invert-white size-6 my-auto ${
+                        isActive && "invert-white"
+                      }`}
                     >
                       <path
                         strokeLinecap="round"
@@ -122,6 +125,7 @@ const LeftSideBar = () => {
 
       <Button
         variant="ghost"
+        id='logoutButton'
         className="shad-button_ghost mt-12"
         onClick={handleLogout}
       >

@@ -45,7 +45,7 @@ const EditProfileForm = () => {
   });
 
   async function onSubmit(values: z.infer<typeof editProfileSchema>) {
-    console.log("SUBMITTED");
+    // console.log("SUBMITTED");
     const newUserProfileDetails = { ...values };
     const updatedProfile = await updateProfie({
       newUserProfileDetails,

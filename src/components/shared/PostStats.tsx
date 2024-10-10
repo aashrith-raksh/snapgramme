@@ -55,17 +55,37 @@ const PostStats: FC<PostStatsProps> = ({ post, userId }) => {
     likePost({ postId: post.$id, likesArray });
   };
   // ========================= HANDLE SAVE POST
-  const handleSavePost = (e: React.MouseEvent<HTMLImageElement>) => {
+  const handleSavePost = async (e: React.MouseEvent<HTMLImageElement>) => {
     e.stopPropagation();
-
+  
     if (savedPostRecord) {
+      // Update UI immediately
       setIsSaved(false);
-      return deleteSavePost(savedPostRecord.$id);
+  
+      // Perform async operation in the background
+      try {
+        await deleteSavePost(savedPostRecord.$id);
+      } catch (error) {
+        // Handle error if needed, e.g., rollback UI change
+        setIsSaved(true);
+        console.error("Failed to unsave post", error);
+      }
+      return;
     }
-
-    savePost({ userId: userId, postId: post.$id });
+  
+    // Update UI immediately
     setIsSaved(true);
+  
+    // Perform async operation in the background
+    try {
+      await savePost({ userId: userId, postId: post.$id });
+    } catch (error) {
+      // Handle error if needed, e.g., rollback UI change
+      setIsSaved(false);
+      console.error("Failed to save post", error);
+    }
   };
+  
 
 
   const containerStyles = location.pathname.startsWith("/profile")

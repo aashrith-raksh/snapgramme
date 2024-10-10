@@ -681,7 +681,7 @@ export async function getConversationsMessages(conversationId: string) {
 // MESSAGES
 // ============================================================
 
-export const sendMessage = async (msgData: INewMessage, senderName: string) => {
+export const sendMessage = async (msgData: INewMessage, senderName: string, receiverName:string) => {
   // console.log(">>>>>> sendMessages()")
   try {
     const msgDocId = ID.unique();
@@ -701,10 +701,11 @@ export const sendMessage = async (msgData: INewMessage, senderName: string) => {
       lastUpdated: createdAt,
       lastMsgIdString: msgDocId,
       lastMsgSenderName: senderName,
+      lastMsgReceiverName: receiverName,
       lastMsgBody: msgData.body,
     });
 
-    // console.log("=========== UDPATED CONVERSATION:", updatedConvoDoc);
+    console.log("=========== UDPATED CONVERSATION:", updatedConvoDoc);
     return newMessage;
   } catch (error) {
     if (error instanceof Error) console.log(error.message);

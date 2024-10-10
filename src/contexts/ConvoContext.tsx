@@ -6,6 +6,7 @@ import {
 import { Models } from "appwrite";
 import React, { ReactNode, createContext, useEffect, useState } from "react";
 import { useUserContext } from "./AuthContext";
+import { multiFormatDateString } from "@/lib/utils";
 
 function showReceiverDetails(
   receiverName: any,
@@ -46,7 +47,7 @@ type IConversationType = {
 
   msgDocs: Models.Document[];
   isLoadingMsgs: boolean;
-  conversations?: Models.DocumentList<Models.Document> | undefined;
+  conversations?: any[];
   isLoadingConversations: boolean;
 };
 
@@ -65,38 +66,49 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useUserContext();
 
   const [msgDocs, setMsgDocs] = useState<any[]>([]);
-  const {
-    data: convoMessages,
-    isPending: isLoadingMsgs,
-  } = useGetConversationMessages(activeConvoDocId);
+  const [conversations, setConversations] = useState<any[]>([]);
+  const { data: convoMessages, isPending: isLoadingMsgs } =
+    useGetConversationMessages(activeConvoDocId);
 
-  const { data: conversations, isPending: isLoadingConversations } =
-    useGetRecentConversations(user.id);
+  const {
+    data: conversationsObj,
+    isPending: isLoadingConversations,
+  } = useGetRecentConversations(user.id);
 
   let { receiverName, receiverImageURL, receiverId } = receiverDetails;
 
   // To set msgDocs when convoMessages are loaded
   useEffect(() => {
     if (convoMessages?.documents) {
-      const modifiedMsgDocs = [
-        ...convoMessages.documents.map((doc) => {
-          return {
-            $id: doc.$id,
-            senderName: doc.senderId.name,
-            body: doc.body,
-          };
-        }),
-      ];
+      // const modifiedMsgDocs = [
+      //   ...convoMessages.documents.map((doc) => {
+      //     return {
+      //       $id: doc.$id,
+      //       senderName: doc.senderId.name,
+      //       body: doc.body,
+      //     };
+      //   }),
+      // ];
+
+      const modifiedMsgDocs: any = [];
+
+      convoMessages.documents.forEach((doc) => {
+        modifiedMsgDocs.unshift({
+          $id: doc.$id,
+          senderName: doc.senderId.name,
+          body: doc.body,
+        });
+      });
       setMsgDocs(modifiedMsgDocs);
     }
   }, [convoMessages]);
 
   // To subscribe to existing conversations and listen to realtime events
   useEffect(() => {
-    if (!conversations || !activeConvoDocId) return;
+    if (!conversationsObj?.documents || !activeConvoDocId) return;
 
     // Subscribe to each conversation's document
-    const unsubscribeFunctions = conversations.documents.map((convo) => {
+    const unsubscribeFunctions = conversationsObj.documents.map((convo) => {
       return client.subscribe(
         `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.conversationsCollectionId}.documents.${convo.$id}`,
         (response) => {
@@ -110,9 +122,8 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
             const updatedConversation: Models.Document = response.payload;
 
             if (updatedConversation.$id === activeConvoDocId) {
-              // setMsgDocs(prev => prev.push(updatedConversation.lastMessageId))
-              console.log("RESPSONSE: ", response);
-              console.log("Conversation updated: ", updatedConversation);
+              // console.log("RESPSONSE: ", response);
+              // console.log("Conversation updated: ", updatedConversation);
 
               setMsgDocs((prev) => [
                 ...prev,
@@ -122,7 +133,7 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
                   body: updatedConversation.lastMsgBody,
                 },
               ]);
-            }
+            } 
           }
         }
       );
@@ -132,7 +143,32 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
     return () => {
       unsubscribeFunctions.forEach((unsubscribe) => unsubscribe());
     };
-  }, [conversations, activeConvoDocId]);
+  }, [conversationsObj, activeConvoDocId]);
+
+  // To set convoDoc when they are available
+  useEffect(() => {
+    if (!conversationsObj?.documents) return;
+
+    const conversations = conversationsObj?.documents
+      ? [
+          ...conversationsObj?.documents.map((convo) => {
+            const otherParticipant =
+              convo.participant1.$id === user.id
+                ? convo.participant2
+                : convo.participant1;
+
+            return {
+              otherParticipant,
+              $id: convo.$id,
+              lastMessage: convo.lastMsgBody,
+              lastUpdated: multiFormatDateString(convo.lastUpdated),
+            };
+          }),
+        ]
+      : [];
+
+    setConversations(conversations);
+  }, [conversationsObj]);
 
   const value = {
     receiverName,

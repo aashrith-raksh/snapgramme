@@ -59,7 +59,7 @@ export const UserCard = ({
             }
             height={54}
             width={54}
-            className="rounded-full"
+            className="rounded-full w-14 h-14 object-cover"
           />
         </Link>
 

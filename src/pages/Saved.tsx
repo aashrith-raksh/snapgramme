@@ -17,11 +17,9 @@ const Saved = () => {
   useEffect(() => {
     if (isSavedLoading || !savedPosts) return;
 
-    console.log("====== DOCUMENT:", savedPosts);
     const loadedSavedPosts: Models.Document[] = savedPosts!.documents.map(
       (doc) => doc.post
     );
-    console.log("====== LOADED SAVED POSTS:", loadedSavedPosts);
 
     setPosts(loadedSavedPosts);
   }, [isSavedLoading, savedPosts]);

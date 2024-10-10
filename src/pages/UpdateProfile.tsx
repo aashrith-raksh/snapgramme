@@ -24,10 +24,8 @@ const EditProfile = () => {
         <div className="flex gap-4 w-full justify-start items-center max-w-5xl">
           <img
             src={user.imageUrl || "/assets/icons/profile-placeholder.svg"}
-            width={100}
-            height={100}
             alt="profile pic"
-            className="rounded-full"
+            className="rounded-full h-24 w-24 object-cover"
           />
           <p className="text-link-blue font-semibold">Change profile photo</p>
         </div>
@@ -62,7 +60,7 @@ const TopPosts = () => {
         <img
           src={user.imageUrl || "/assets/icons/profile-placeholder.svg"}
           alt="profile"
-          className="h-[130px] w-[130px] rounded-full "
+          className="h-[130px] w-[130px] rounded-full object-cover"
         />
         <div className="flex flex-col gap-3 items-center">
           <h1 className="text-3xl font-bold">
@@ -98,7 +96,7 @@ const TopPosts = () => {
                       "/assets/icons/profile-placeholder.svg"
                     }
                     alt="creator"
-                    className="w-8 h-8 rounded-full"
+                    className="w-8 h-8 rounded-full object-cover"
                   />
                   <p className="line-clamp-1">{post.creator.name}</p>
                 </div>

@@ -55,7 +55,7 @@ const SignInForm = () => {
     });
 
     if (isErrorInSignIn || !session) {
-      console.log("Invalid session");
+      // console.log("Invalid session");
       toast({
         variant: "destructive",
         title: "Sing in failed. Please try again.",
@@ -84,7 +84,7 @@ const SignInForm = () => {
     event.preventDefault();
     try {
       setIsCreatingGuestAccount(true);
-      const anonymousSession = await account.createAnonymousSession();
+      await account.createAnonymousSession();
 
       createGuestUser();
       setIsAnonymous(true);

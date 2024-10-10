@@ -58,6 +58,7 @@ export interface INewConversation {
   lastMsgIdString?: string;
   lastMsgBody?: string;
   lastMsgSenderName?: string;
+  lastMsgReceiverName?: string;
   lastUpdated?: Date;
 }
 

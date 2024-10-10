@@ -278,7 +278,6 @@ export const useGetConversationMessages = (conversationId: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.GET_CONVERSATION_MSGS, conversationId],
     queryFn: () => {
-      console.log("useGetConversatoinMessages() called!");
       return getConversationsMessages(conversationId);
     },
     enabled: !!conversationId,
@@ -290,22 +289,11 @@ export const useSendMessageMutation = () => {
     mutationFn: ({
       msgData,
       senderName,
+      receiverName
     }: {
       msgData: INewMessage;
       senderName: string;
-    }) => sendMessage(msgData, senderName),
+      receiverName:string;
+    }) => sendMessage(msgData, senderName,receiverName),
   });
 };
-// export const useSendMessageMutation = (conversationId: string) => {
-//   const queryClient = useQueryClient();
-//   return useMutation({
-//     mutationFn: (msgData: INewMessage) => sendMessage(msgData),
-//     onSuccess: () => {
-//       if (conversationId !== "") {
-//         queryClient.invalidateQueries({
-//           queryKey: [QUERY_KEYS.GET_CONVERSATION_MSGS, conversationId], //this invalidates the msgs fetched for some other convoId.
-//         });
-//       }
-//     },
-//   });
-// };

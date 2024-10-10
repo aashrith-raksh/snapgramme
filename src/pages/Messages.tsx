@@ -80,7 +80,7 @@ const MessagePanelHeader = ({
 
 const MessagesInput = () => {
   const [message, setMessage] = useState("");
-  const { activeConvoDocId, setActiveConvoDocId, receiverId } =
+  const { activeConvoDocId, setActiveConvoDocId, receiverId, receiverName } =
     useContext(ConvoContext);
   const { user } = useUserContext();
 
@@ -119,7 +119,11 @@ const MessagesInput = () => {
         conversationId,
       };
 
-      const newMessage = await sendMsg({ msgData, senderName: user.name });
+      const newMessage = await sendMsg({
+        msgData,
+        senderName: user.name,
+        receiverName,
+      });
       console.log("=========== NEW MESSAGE:", newMessage);
     } catch (error) {
       if (error instanceof Error) console.log(error.message);
@@ -244,11 +248,6 @@ const MessagesPageHeader = () => {
 };
 
 const ConversationsList = () => {
-  // const { data: conversations, isPending: isLoadingConversations } =
-  //   useGetRecentConversations(user.id);
-
-  const { user } = useUserContext();
-
   const [searchValue, setSearchValue] = useState("");
 
   const debouncedSearch = useDebounce(searchValue, 500);
@@ -272,7 +271,7 @@ const ConversationsList = () => {
   const showConversations =
     !isLoadingConversations &&
     conversations &&
-    conversations.documents.length > 0 &&
+    conversations.length > 0 &&
     searchValue === "";
 
   /* Check if the empty state should be displayed:
@@ -284,7 +283,7 @@ const ConversationsList = () => {
   const showEmptyBox =
     !isLoadingConversations &&
     conversations &&
-    conversations.documents.length === 0 &&
+    conversations.length === 0 &&
     searchValue === "";
 
   function handleSetConvoDetails(
@@ -376,28 +375,23 @@ const ConversationsList = () => {
           </div>
         ) : (
           showConversations &&
-          (isLoadingConversations ? (
+          (isLoadingConversations || conversations.length === 0 ? (
             <Loader />
           ) : (
             <ul className="flex flex-col flex-1">
-              {conversations!.documents.map((convo: Models.Document) => {
-                const otherParticipant =
-                  convo.participant1.$id === user.id
-                    ? convo.participant2
-                    : convo.participant1;
-
+              {conversations.map((convo: Models.Document) => {
                 return (
                   <li
                     key={convo.$id}
                     onClick={() =>
-                      handleSetConvoDetails(convo.$id, otherParticipant)
+                      handleSetConvoDetails(convo.$id, convo.otherParticipant)
                     }
                   >
                     <FriendItem
-                      name={otherParticipant.name}
+                      name={convo.otherParticipant.name}
                       showCursorPointer={true}
-                      lastMessage={convo.lastMsgBody}
-                      lastUpdated={multiFormatDateString(convo.lastUpdated)}
+                      lastMessage={convo.lastMessage}
+                      lastUpdated={convo.lastUpdated}
                       showLastUpdated={true}
                     />
                   </li>

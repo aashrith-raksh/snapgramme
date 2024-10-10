@@ -72,7 +72,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
       ...values,
       userId: user.id,
     };
-    console.log(newPostDetails);
+    // console.log(newPostDetails);
     const newPost = await createPost(newPostDetails);
     if (!newPost) {
       toast({
@@ -80,7 +80,7 @@ const PostForm = ({ post, action }: PostFormProps) => {
       });
       return;
     }
-    console.log(newPost);
+    // console.log(newPost);
     navigate("/");
   }
 
