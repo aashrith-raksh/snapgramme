@@ -7,6 +7,16 @@ import { Models } from "appwrite";
 import React, { ReactNode, createContext, useEffect, useState } from "react";
 import { useUserContext } from "./AuthContext";
 
+function showReceiverDetails(
+  receiverName: any,
+  receiverImageURL: any,
+  activeConvoDocId: any
+) {
+  console.log(
+    `Receiver Details:\n- Name: ${receiverName}\n- Image URL: ${receiverImageURL}\n- Active Conversation ID: ${activeConvoDocId}`
+  );
+}
+
 const INITIAL_CONVO_CONTEXT: IConversationType = {
   activeConvoDocId: "",
   receiverName: "",
@@ -58,7 +68,6 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
   const {
     data: convoMessages,
     isPending: isLoadingMsgs,
-    refetch,
   } = useGetConversationMessages(activeConvoDocId);
 
   const { data: conversations, isPending: isLoadingConversations } =
@@ -124,10 +133,6 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
       unsubscribeFunctions.forEach((unsubscribe) => unsubscribe());
     };
   }, [conversations, activeConvoDocId]);
-
-  console.log(
-    `Receiver Details:\n- Name: ${receiverName}\n- Image URL: ${receiverImageURL}\n- Active Conversation ID: ${activeConvoDocId}`
-  );
 
   const value = {
     receiverName,

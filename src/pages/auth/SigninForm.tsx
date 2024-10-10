@@ -32,14 +32,13 @@ const SignInForm = () => {
 
   const navigate = useNavigate();
 
-
   const {
     mutateAsync: signInUser,
     isPending: isSigningInUser,
     isError: isErrorInSignIn,
   } = useSignInAccount();
 
-  const [isCreatingGuestAccount, setIsCreatingGuestAccount] = useState(false)
+  const [isCreatingGuestAccount, setIsCreatingGuestAccount] = useState(false);
 
   const form = useForm<z.infer<typeof signInValidationSchema>>({
     resolver: zodResolver(signInValidationSchema),
@@ -64,9 +63,6 @@ const SignInForm = () => {
       return;
     }
 
-    console.log("\nuser session created".toUpperCase());
-    console.log("session: ", session);
-
     const isLoggedIn = await checkAuthUser();
 
     if (isLoggedIn) {
@@ -82,27 +78,24 @@ const SignInForm = () => {
     }
   }
 
- async function createGuestAccount(
+  async function createGuestAccount(
     event: React.MouseEvent<HTMLButtonElement>
   ): Promise<void> {
     event.preventDefault();
     try {
-      setIsCreatingGuestAccount(true)
+      setIsCreatingGuestAccount(true);
       const anonymousSession = await account.createAnonymousSession();
-      console.log("============== ANONYMOUS SESSION:", anonymousSession);
-  
+
       createGuestUser();
       setIsAnonymous(true);
-  
+
       navigate("/");
     } catch (error) {
-      if(error instanceof Error){
-        console.log(error.message)
+      if (error instanceof Error) {
+        console.log(error.message);
       }
-      
-    }finally{
-      setIsCreatingGuestAccount(false)
-
+    } finally {
+      setIsCreatingGuestAccount(false);
     }
   }
 
@@ -145,12 +138,15 @@ const SignInForm = () => {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input
-                    placeholder="Password"
-                    type="password"
-                    className="shad-input"
-                    {...field}
-                  />
+                  <div>
+                    <Input
+                      placeholder="Password"
+                      type="password"
+                      className="shad-input"
+                      {...field}
+                    />
+                    
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -170,7 +166,7 @@ const SignInForm = () => {
             onClick={createGuestAccount}
             className="border-primary-500 border-[1px]"
           >
-           Continue as a guest {isCreatingGuestAccount && <Loader/>}
+            Continue as a guest {isCreatingGuestAccount && <Loader />}
           </Button>
 
           <p className="text-small-regular text-light-2 text-center mt-2">
