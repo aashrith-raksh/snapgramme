@@ -105,7 +105,8 @@ const SignUpForm = () => {
     event.preventDefault();
     try {
       setIsCreatingGuestAccount(true)
-      const anonymousSession = await account.createAnonymousSession();
+      await account.createAnonymousSession();
+      // const anonymousSession = await account.createAnonymousSession();
       // console.log("============== ANONYMOUS SESSION:", anonymousSession);
   
       createGuestUser();

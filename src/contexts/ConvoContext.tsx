@@ -8,6 +8,7 @@ import React, { ReactNode, createContext, useEffect, useState } from "react";
 import { useUserContext } from "./AuthContext";
 import { multiFormatDateString } from "@/lib/utils";
 
+// @ts-ignore
 function showReceiverDetails(
   receiverName: any,
   receiverImageURL: any,

@@ -61,8 +61,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       navigate("/signup");
       return;
     }
+    setIsAuthenticated(true);
 
-    // console.log("\tAuthenticated...checkAuthUser()");
+    // console.log("\tAuthentication checked... calling checkAuthUser()");
 
     checkAuthUser();
   }, []);

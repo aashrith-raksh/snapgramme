@@ -3,7 +3,6 @@ import {
   useQuery,
   useQueryClient,
   useInfiniteQuery,
-  QueryClient,
 } from "@tanstack/react-query";
 import {
   INewMessage,

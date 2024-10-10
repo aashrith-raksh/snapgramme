@@ -10,7 +10,6 @@ import {
   useSendMessageMutation,
 } from "@/lib/react-query/queriesAndMutations";
 import { INewConversation, INewMessage } from "@/lib/types";
-import { multiFormatDateString } from "@/lib/utils";
 import { ID, Models } from "appwrite";
 import { useContext, useEffect, useRef, useState } from "react";
 

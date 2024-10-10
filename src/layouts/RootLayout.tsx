@@ -1,7 +1,4 @@
-import { useUserContext } from "@/contexts/AuthContext";
-import { account } from "@/lib/appwrite/config";
-import { useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 import TopBar from "@/components/shared/TopBar";
 import LeftSideBar from "@/components/shared/LeftSideBar";
