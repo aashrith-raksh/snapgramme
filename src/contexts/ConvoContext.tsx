@@ -19,7 +19,42 @@ function showReceiverDetails(
   );
 }
 
-const INITIAL_CONVO_CONTEXT: IConversationType = {
+// =============== TYPES ================
+type IConvoContextType = {
+  activeConvoDocId: string;
+  receiverName: string;
+  receiverImageURL: string;
+  receiverId: string;
+  setActiveConvoDocId: React.Dispatch<React.SetStateAction<string>>;
+  setReceiverDetails: React.Dispatch<React.SetStateAction<IReceiverDetails>>;
+
+  msgDocs: IMessageDoc[];
+  isLoadingMsgs: boolean;
+  conversations?: ILoadedConversations[];
+  isLoadingConversations: boolean;
+};
+
+export interface IReceiverDetails {
+  receiverName: string;
+  receiverImageURL: string;
+  receiverId: string;
+}
+
+export interface ILoadedConversations {
+  otherParticipant: Models.Document;
+  $id: string;
+  lastMessage: string;
+  lastUpdated: string;
+}
+
+interface IMessageDoc {
+  $id: string;
+  senderName: string;
+  body: string;
+}
+// ======================================
+
+const INITIAL_CONVO_CONTEXT: IConvoContextType = {
   activeConvoDocId: "",
   receiverName: "",
   receiverId: "",
@@ -32,65 +67,48 @@ const INITIAL_CONVO_CONTEXT: IConversationType = {
   isLoadingConversations: true,
 };
 
-type IConversationType = {
-  activeConvoDocId: string;
-  receiverName: string;
-  receiverImageURL: string;
-  receiverId: string;
-  setActiveConvoDocId: React.Dispatch<React.SetStateAction<string>>;
-  setReceiverDetails: React.Dispatch<
-    React.SetStateAction<{
-      receiverName: string;
-      receiverImageURL: string;
-      receiverId: string;
-    }>
-  >;
-
-  msgDocs: Models.Document[];
-  isLoadingMsgs: boolean;
-  conversations?: any[];
-  isLoadingConversations: boolean;
-};
-
-export const ConvoContext = createContext<IConversationType>(
+export const ConvoContext = createContext<IConvoContextType>(
   INITIAL_CONVO_CONTEXT
 );
 
 const ConvoProvider = ({ children }: { children: ReactNode }) => {
   const [activeConvoDocId, setActiveConvoDocId] = useState<string>("");
-  const [receiverDetails, setReceiverDetails] = useState<{
-    receiverName: string;
-    receiverImageURL: string;
-    receiverId: string;
-  }>({ receiverName: "", receiverImageURL: "", receiverId: "" });
+  const [receiverDetails, setReceiverDetails] = useState<IReceiverDetails>({
+    receiverName: "",
+    receiverImageURL: "",
+    receiverId: "",
+  });
 
   const { user } = useUserContext();
 
-  const [msgDocs, setMsgDocs] = useState<any[]>([]);
-  const [conversations, setConversations] = useState<any[]>([]);
   const { data: convoMessages, isPending: isLoadingMsgs } =
     useGetConversationMessages(activeConvoDocId);
 
-  const {
-    data: conversationsObj,
-    isPending: isLoadingConversations,
-  } = useGetRecentConversations(user.id);
+  const { data: conversationsObj, isPending: isLoadingConversations } =
+    useGetRecentConversations(user.id);
+
+  const [msgDocs, setMsgDocs] = useState<IMessageDoc[]>([]);
+  const [conversations, setConversations] = useState<ILoadedConversations[]>(
+    []
+  );
 
   let { receiverName, receiverImageURL, receiverId } = receiverDetails;
 
-  // To set msgDocs when convoMessages are loaded
+  // SET MsgDocs
   useEffect(() => {
-    if (convoMessages?.documents) {
-      // const modifiedMsgDocs = [
-      //   ...convoMessages.documents.map((doc) => {
-      //     return {
-      //       $id: doc.$id,
-      //       senderName: doc.senderId.name,
-      //       body: doc.body,
-      //     };
-      //   }),
-      // ];
+    console.log("useEffect ran for msgDocs");
 
+    if (!convoMessages?.documents) {
+      console.log("No convoMessages found, returning early.");
+      return;
+    }
+
+    console.log(
+      "convoMessages is available with documents:",
+      convoMessages?.documents
+    );
+
+    if (convoMessages?.documents) {
       const modifiedMsgDocs: any = [];
 
       convoMessages.documents.forEach((doc) => {
@@ -100,11 +118,17 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
           body: doc.body,
         });
       });
+      console.log("Mapped msgDocs:", modifiedMsgDocs);
+
       setMsgDocs(modifiedMsgDocs);
+
+      console.log("msgDocs state updated");
     }
   }, [convoMessages]);
 
-  // To subscribe to existing conversations and listen to realtime events
+  /* SET REALTIME SUBSCRIPTION
+      To subscribe to existing conversations and listen to realtime events
+  */
   useEffect(() => {
     if (!conversationsObj?.documents || !activeConvoDocId) return;
 
@@ -134,7 +158,7 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
                   body: updatedConversation.lastMsgBody,
                 },
               ]);
-            } 
+            }
           }
         }
       );
@@ -146,9 +170,21 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [conversationsObj, activeConvoDocId]);
 
-  // To set convoDoc when they are available
+  /* SET CONVERSATIONS
+    To set conversations when conversationObj is available
+  */
   useEffect(() => {
-    if (!conversationsObj?.documents) return;
+    console.log("useEffect ran for conversationsObj");
+
+    if (!conversationsObj?.documents) {
+      console.log("No conversationsObj or documents found, returning early.");
+      return;
+    }
+
+    console.log(
+      "conversationsObj is available with documents:",
+      conversationsObj?.documents
+    );
 
     const conversations = conversationsObj?.documents
       ? [
@@ -168,7 +204,11 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
         ]
       : [];
 
+    console.log("Mapped conversations:", conversations);
+
     setConversations(conversations);
+
+    console.log("Conversations state updated.");
   }, [conversationsObj]);
 
   const value = {
@@ -190,5 +230,3 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
 };
 
 export default ConvoProvider;
-
-// export const useConvoContext = () => useContext<>(ConvoContext)

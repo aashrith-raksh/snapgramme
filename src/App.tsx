@@ -23,7 +23,6 @@ const MessagesPage = lazy(() => import("./pages/Messages"));
 function App() {
   return (
     <main className="flex h-screen">
-      {/* Wrap Routes in Suspense to handle lazy loading */}
       <Suspense
         fallback={
           <div className="mx-auto my-auto">
