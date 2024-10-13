@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useSignOutAccount } from "@/lib/react-query/queriesAndMutations";
 
 const TopBar = () => {
-  const { user, setIsAnonymous } = useUserContext();
+  const { user, setIsAnonymous, setIsAuthenticated } = useUserContext();
   const navigate = useNavigate();
   const { mutateAsync: signOut } = useSignOutAccount();
   const { toast } = useToast();
@@ -24,6 +24,7 @@ const TopBar = () => {
       }
 
       if (deletedSession) {
+        setIsAuthenticated(false);
         navigate("/signin");
         return;
       }
@@ -46,6 +47,7 @@ const TopBar = () => {
             alt="logo"
             width={130}
             height={325}
+            
           />
         </Link>
 
@@ -63,7 +65,7 @@ const TopBar = () => {
             <img
               src={user.imageUrl || "/assets/icons/profile-placeholder.svg"}
               alt="profile"
-              className="h-8 w-8 rounded-full"
+              className="h-8 w-8 rounded-full object-cover"
             />
           </Link>
         </div>

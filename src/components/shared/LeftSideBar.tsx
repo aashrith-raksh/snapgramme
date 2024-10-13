@@ -12,15 +12,15 @@ const LeftSideBar = () => {
   const navigate = useNavigate();
 
   const { pathname } = useLocation();
-  const { user, isAnonymous, setIsAnonymous, isLoading } = useUserContext();
+  const { user, isAnonymous, setIsAnonymous, isLoading, setIsAuthenticated } = useUserContext();
   const { mutateAsync: signOut } = useSignOutAccount();
   const { toast } = useToast();
 
   async function handleLogout(): Promise<void> {
     try {
       const deletedSession = await signOut("current");
-      // console.log("LOGOUT");
-      // console.log("============ DELETED SESSION:", deletedSession);
+      console.log("LOGOUT");
+      console.log("============ DELETED SESSION:", deletedSession);
 
       if (checkIsGuestUser()) {
         deleteGuestUser();
@@ -28,6 +28,7 @@ const LeftSideBar = () => {
       }
 
       if (deletedSession) {
+        setIsAuthenticated(false);
         navigate("/signin");
         return;
       }
@@ -55,7 +56,6 @@ const LeftSideBar = () => {
 
         {isLoading || (!isAnonymous && !user) ? (
           <div className="h-14">
-            <p>{isLoading}</p>
             <Loader />
           </div>
         ) : (

@@ -496,11 +496,11 @@ export const updateProfile = async (
   }
 };
 export const getCurrentUser = async () => {
-  console.log("\n-------------- getCurrentUser() --------------");
+  // console.log("\n-------------- getCurrentUser() --------------");
   try {
     const currentLoggedInAccount = await account.get();
 
-    console.log("\tCURRENT LOGGEDIN ACCOUNT:", currentLoggedInAccount);
+    // console.log("\tCURRENT LOGGEDIN ACCOUNT:", currentLoggedInAccount);
 
     if (!currentLoggedInAccount)
       throw new Error("currentLoggedInAcccount not found");
@@ -517,8 +517,8 @@ export const getCurrentUser = async () => {
       throw new Error("currentUserDoc not found");
     }
 
-    console.log("\tCURRENT USER DOC(s):", currentUserDocs);
-    console.log("\tCURRENT USER:", currentUserDocs.documents[0]);
+    // console.log("\tCURRENT USER DOC(s):", currentUserDocs);
+    // console.log("\tCURRENT USER:", currentUserDocs.documents[0]);
 
     return currentUserDocs.documents[0];
   } catch (error) {
