@@ -11,7 +11,6 @@ import {
   IUserInDB,
 } from "../types";
 import { UpdateProfile } from "@/pages";
-import { useUserContext } from "@/contexts/AuthContext";
 
 export const createUserAccount = async (userDetails: INewUser) => {
   try {
@@ -567,7 +566,7 @@ export const getCurrentUserWithLogs = async () => {
 
 // ============================== SIGN OUT USER
 export const signOutUser = async (sessionId: string) => {
-  console.log("\t------------ signOutUser ---------------");
+  // console.log("\t------------ signOutUser ---------------");
   try {
     const deletedSession = await account.deleteSession(sessionId);
     return deletedSession;

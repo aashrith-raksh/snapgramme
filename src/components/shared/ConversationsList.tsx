@@ -84,9 +84,10 @@ const ConversationsList = () => {
   return (
     <>
       <button
-        className={`lg:hidden absolute z-200 top-[15%] transition-transform duration-300 ${
-          isChatOpen ? "right-[63%]" : "left-[96%]"
-        } bg-primary-500 p-1 text-white rounded-md rounded-tr-none rounded-br-none`}
+        id="toggle-button"
+        className={`lg:hidden absolute z-200 top-[15vh] transition-transform duration-300 ${
+          isChatOpen ? "right-[365px] md:right-[465px]" : "left-[96%]"
+        } bg-primary-500 p-1 rounded-md rounded-tr-none rounded-br-none`}
         onClick={() => setIsChatOpen(!isChatOpen)}
       >
         <img
@@ -95,18 +96,14 @@ const ConversationsList = () => {
           className="w-6 h-6"
         />
       </button>
-
       <section
-        id="chats"
-        // className="hidden lg:block h-screen w-[465px] bg-dark-3  custom-scrollbar overflow-y-scroll"
-        // className={`h-[85vh] top-[7.5vh] bottom-[7.5vh] md:top-0 right-0  md:h-full lg:block w-[465px] bg-dark-3 custom-scrollbar overflow-y-scroll transition-transform duration-300 lg:block ${
-        //   isChatOpen ? "translate-x-0" : "translate-x-full"
-        // } lg:translate-x-0`}
+        id="conversation-list"
         className={`${
-          isChatOpen ? "fixed" : ""
-        } lg:block h-screen w-[465px] bg-dark-3 custom-scrollbar overflow-y-scroll transition-transform duration-300 ${
-          isChatOpen ? "right-[0%] top-0" : "top-[15%] right-[96%] hidden"
-        }`}
+          isChatOpen
+            ? "fixed right-[0%] top-[11vh] h-[78vh] md:h-screen md:top-0 rounded-lg"
+            : "top-[15%] right-[96%] hidden"
+        } lg:block md:h-screen w-[365px] md:w-[465px] bg-dark-2 custom-scrollbar overflow-y-scroll transition-transform duration-300 
+        `}
       >
         <div className="flex flex-col h-full px-6 gap-12">
           {/* HEADER */}
