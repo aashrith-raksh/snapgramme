@@ -55,10 +55,9 @@ const SignInForm = () => {
     });
 
     if (isErrorInSignIn || !session) {
-      // console.log("Invalid session");
       toast({
         variant: "destructive",
-        title: "Sing in failed. Please try again.",
+        title:  "Sign in failed. Please try again.",
       });
       return;
     }

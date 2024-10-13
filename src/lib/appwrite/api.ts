@@ -452,17 +452,18 @@ export const signInUser = async (userCredentials: {
   email: string;
   password: string;
 }) => {
+  console.log("\n--------- signInUser() ----------");
+
   try {
     const { email, password } = userCredentials;
     const session = await account.createEmailPasswordSession(email, password);
     return session;
   } catch (error) {
-    console.log("------- signInUser --------");
 
     if (error instanceof Error) {
       console.error("\t", error.message);
     } else {
-      console.error("\tUnkniown error occured");
+      console.error("\tUnknown error occured");
     }
   }
 };

@@ -19,8 +19,8 @@ const LeftSideBar = () => {
   async function handleLogout(): Promise<void> {
     try {
       const deletedSession = await signOut("current");
-      console.log("LOGOUT");
-      console.log("============ DELETED SESSION:", deletedSession);
+      // console.log("LOGOUT");
+      // console.log("============ DELETED SESSION:", deletedSession);
 
       if (checkIsGuestUser()) {
         deleteGuestUser();
