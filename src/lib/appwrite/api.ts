@@ -11,6 +11,7 @@ import {
   IUserInDB,
 } from "../types";
 import { UpdateProfile } from "@/pages";
+import { useUserContext } from "@/contexts/AuthContext";
 
 export const createUserAccount = async (userDetails: INewUser) => {
   try {
@@ -495,8 +496,12 @@ export const updateProfile = async (
   }
 };
 export const getCurrentUser = async () => {
+  console.log("\n-------------- getCurrentUser() --------------");
   try {
     const currentLoggedInAccount = await account.get();
+
+    console.log("\tCURRENT LOGGEDIN ACCOUNT:", currentLoggedInAccount);
+
     if (!currentLoggedInAccount)
       throw new Error("currentLoggedInAcccount not found");
 
@@ -511,6 +516,9 @@ export const getCurrentUser = async () => {
     if (!currentUserDocs) {
       throw new Error("currentUserDoc not found");
     }
+
+    console.log("\tCURRENT USER DOC(s):", currentUserDocs);
+    console.log("\tCURRENT USER:", currentUserDocs.documents[0]);
 
     return currentUserDocs.documents[0];
   } catch (error) {
@@ -557,6 +565,7 @@ export const getCurrentUserWithLogs = async () => {
   }
 };
 
+// ============================== SIGN OUT USER
 export const signOutUser = async (sessionId: string) => {
   console.log("\t------------ signOutUser ---------------");
   try {
@@ -587,6 +596,25 @@ export async function findUserByUsername(userName: string) {
     console.log(error);
   }
 }
+export const fetchDummyUsers = async () => {
+  try {
+    const dummyUser1 = await db.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      "6709680f003a2f1c4f71"
+    );
+    const dummyUser2 = await db.getDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.userCollectionId,
+      "670968a5003758167283"
+    );
+
+    return [dummyUser1, dummyUser2];
+  } catch (error) {
+    console.error("Error fetching documents:", error);
+    throw error;
+  }
+};
 
 // ============================================================
 // CONVERSATIONS
@@ -606,7 +634,7 @@ export async function createNewConversation(newConvoDetails: INewConversation) {
     if (!newConversationDoc)
       throw new Error("Errror while creating new conversation doc");
 
-    console.log("=========== NEW CONVERSATION:", newConversationDoc);
+    console.log("\n\t=========== NEW CONVERSATION:", newConversationDoc);
     return newConversationDoc;
   } catch (error) {
     if (error instanceof Error) console.log(error.message);
@@ -617,7 +645,14 @@ export async function updateConversation(
   convoId: string,
   dataToUpate: IUpdateConversation
 ) {
-  // console.log(">>>>>> createNewConversation()")
+  console.log("\n-------------- updateConversation() --------------");
+  console.log("\tConversation ID:", convoId);
+  console.log("\tData to update:", dataToUpate);
+
+  // for (const [key, value] of Object.entries(dataToUpate)) {
+  //   console.log(`Field: ${key}, Value: ${value}, Type: ${typeof value}`);
+  // }
+
   try {
     const updatedConvoDoc = await db.updateDocument(
       appwriteConfig.databaseId,
@@ -630,7 +665,7 @@ export async function updateConversation(
 
     return updatedConvoDoc;
   } catch (error) {
-    if (error instanceof Error) console.log(error.message);
+    if (error instanceof Error) console.log(error);
   }
 }
 
@@ -681,8 +716,12 @@ export async function getConversationsMessages(conversationId: string) {
 // MESSAGES
 // ============================================================
 
-export const sendMessage = async (msgData: INewMessage, senderName: string, receiverName:string) => {
-  // console.log(">>>>>> sendMessages()")
+export const sendMessage = async (
+  msgData: INewMessage,
+  convoDataToUpdate: IUpdateConversation,
+  isAnonymous: boolean
+) => {
+  console.log("\n-------------- sendMessages() --------------");
   try {
     const msgDocId = ID.unique();
 
@@ -695,17 +734,24 @@ export const sendMessage = async (msgData: INewMessage, senderName: string, rece
 
     if (!newMessage) throw new Error("Errror while fetching messages");
 
-    const { conversationId, createdAt } = msgData;
-    const updatedConvoDoc = await updateConversation(conversationId!, {
-      lastMessageId: msgDocId,
-      lastUpdated: createdAt,
-      lastMsgIdString: msgDocId,
-      lastMsgSenderName: senderName,
-      lastMsgReceiverName: receiverName,
-      lastMsgBody: msgData.body,
-    });
 
-    console.log("=========== UDPATED CONVERSATION:", updatedConvoDoc);
+    if (!isAnonymous) {
+      const { createdAt, body } = msgData;
+      const { conversationId, lastMsgSenderName, lastMsgReceiverName } =
+        convoDataToUpdate;
+
+      const updatedConvoDoc = await updateConversation(conversationId!, {
+        lastMessageId: msgDocId,
+        lastUpdated: createdAt,
+        lastMsgIdString: msgDocId,
+        lastMsgSenderName,
+        lastMsgReceiverName,
+        lastMsgBody: body,
+      });
+
+      console.log("\n\t=========== UDPATED CONVERSATION:", updatedConvoDoc);
+    }
+    console.log("\n\t=========== NEW MESSAGE:", newMessage);
     return newMessage;
   } catch (error) {
     if (error instanceof Error) console.log(error.message);

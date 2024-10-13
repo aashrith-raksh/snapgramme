@@ -8,6 +8,7 @@ import {
   INewMessage,
   INewPost,
   INewUser,
+  IUpdateConversation,
   IUpdatePost,
   IUpdateProfile,
 } from "../types";
@@ -16,6 +17,7 @@ import {
   createUserAccount,
   deletePost,
   deleteSavedPost,
+  fetchDummyUsers,
   findUserByUsername,
   getConversationsMessages,
   getCurrentUser,
@@ -226,6 +228,12 @@ export const useGetCurrentUser = () => {
     queryFn: getCurrentUser,
   });
 };
+export const useFetchDummyUsers = () => {
+  return useQuery({
+    queryKey: [QUERY_KEYS.GET_DUMMY_USERS],
+    queryFn: fetchDummyUsers,
+  });
+};
 
 export const useGetUsers = (limit?: number) => {
   return useQuery({
@@ -287,12 +295,12 @@ export const useSendMessageMutation = () => {
   return useMutation({
     mutationFn: ({
       msgData,
-      senderName,
-      receiverName
+      convoDataToUpdate,
+      isAnonymous,
     }: {
       msgData: INewMessage;
-      senderName: string;
-      receiverName:string;
-    }) => sendMessage(msgData, senderName,receiverName),
+      convoDataToUpdate: IUpdateConversation;
+      isAnonymous: boolean;
+    }) => sendMessage(msgData, convoDataToUpdate, isAnonymous),
   });
 };

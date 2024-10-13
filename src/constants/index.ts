@@ -53,5 +53,10 @@ export const sidebarLinks = [
       route: "/create-post",
       label: "Create",
     },
+    {
+      imgURL: "/assets/icons/messages.svg",
+      route: "/messages",
+      label: "Messages",
+    },
   ];
   
