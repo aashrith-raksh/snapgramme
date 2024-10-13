@@ -2,7 +2,7 @@ import FriendItem from "@/components/shared/FriendItem";
 import Loader from "@/components/shared/Loader";
 import { Input } from "@/components/ui/input";
 import { useUserContext } from "@/contexts/AuthContext";
-import { ConvoContext, IMessageDoc } from "@/contexts/ConvoContext";
+import { ConvoContext } from "@/contexts/ConvoContext";
 import { createNewConversation } from "@/lib/appwrite/api";
 import { useSendMessageMutation } from "@/lib/react-query/queriesAndMutations";
 import {
@@ -151,15 +151,6 @@ const MessagesPanelInput = () => {
     } catch (error) {
       if (error instanceof Error) console.log(error.message);
     }
-  }
-
-  function handleSendMessageAnonymous() {
-    const msgData: IMessageDoc = {
-      $id: ID.unique(),
-      senderName: "Anonymous",
-      body: message,
-    };
-    setMsgDocs((prev) => [...prev, msgData]);
   }
 
   return (
