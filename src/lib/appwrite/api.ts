@@ -13,6 +13,9 @@ import {
 import { UpdateProfile } from "@/pages";
 
 export const createUserAccount = async (userDetails: INewUser) => {
+  //   console.log("\n--------- createUserAccount() ----------");
+
+
   try {
     const { email, password, name } = userDetails;
     const newAccount = await account.create(ID.unique(), email, password, name);
@@ -34,16 +37,17 @@ export const createUserAccount = async (userDetails: INewUser) => {
     return newUserInDB;
   } catch (error) {
     if (error instanceof Error) {
-      console.log("------ createUserAccount -------------");
       console.error("\t" + error.message);
     } else {
-      console.log("------ createUserAccount -------------");
       console.error("\t" + "An unknown error occurred.");
     }
   }
 };
 
 export const saveUserToDB = async (newUserDetails: IUserInDB) => {
+    //   console.log("\n--------- saveUserToDB() ----------");
+
+
   try {
     const newUserInDB = await db.createDocument(
       appwriteConfig.databaseId,
@@ -55,10 +59,8 @@ export const saveUserToDB = async (newUserDetails: IUserInDB) => {
     return newUserInDB;
   } catch (error) {
     if (error instanceof Error) {
-      console.log("------ saveUserToDB -------------");
       console.error("\t" + error.message);
     } else {
-      console.log("------ createUserAccount -------------");
       console.error("\t" + "An unknown error occurred.");
     }
   }
@@ -452,7 +454,7 @@ export const signInUser = async (userCredentials: {
   email: string;
   password: string;
 }) => {
-  console.log("\n--------- signInUser() ----------");
+  // console.log("\n--------- signInUser() ----------");
 
   try {
     const { email, password } = userCredentials;
@@ -486,7 +488,6 @@ export const updateProfile = async (
 
     return updatedProfile;
   } catch (error) {
-    console.log("------- signInUser --------");
 
     if (error instanceof Error) {
       console.error("\t", error.message);
@@ -523,7 +524,6 @@ export const getCurrentUser = async () => {
     return currentUserDocs.documents[0];
   } catch (error) {
     if (error instanceof Error) {
-      console.log("----- getCurretUser -------");
       console.error("\t", error.message);
     }
   }
@@ -531,16 +531,16 @@ export const getCurrentUser = async () => {
 
 //use this to debug. This version has console logs of the results
 export const getCurrentUserWithLogs = async () => {
-  console.log("------- getCurrentUser --------");
+  // console.log("------- getCurrentUser() --------");
   try {
     const currentLoggedInAccount = await account.get();
     if (!currentLoggedInAccount)
       throw new Error("currentLoggedInAcccount not found");
 
-    console.log("\tcurrentLoggedInAccount:", currentLoggedInAccount);
+    // console.log("\tcurrentLoggedInAccount:", currentLoggedInAccount);
 
     const currentId = currentLoggedInAccount.$id;
-    console.log("\tcurrentId:", currentId);
+    // console.log("\tcurrentId:", currentId);
 
     const currentUserDocs = await db.listDocuments(
       appwriteConfig.databaseId,
@@ -552,9 +552,9 @@ export const getCurrentUserWithLogs = async () => {
       throw new Error("currentUserDoc not found");
     }
 
-    console.log("\n\tcurrentUserDocs[0]:", currentUserDocs.documents[0]);
-    console.log("\tRETURNING....", currentUserDocs.documents[0]);
-    console.log("-------------------------------------------------");
+    // console.log("\n\tcurrentUserDocs[0]:", currentUserDocs.documents[0]);
+    // console.log("\tRETURNING....", currentUserDocs.documents[0]);
+    // console.log("-------------------------------------------------");
 
     return currentUserDocs.documents[0];
   } catch (error) {
@@ -634,7 +634,7 @@ export async function createNewConversation(newConvoDetails: INewConversation) {
     if (!newConversationDoc)
       throw new Error("Errror while creating new conversation doc");
 
-    console.log("\n\t=========== NEW CONVERSATION:", newConversationDoc);
+    // console.log("\n\t=========== NEW CONVERSATION:", newConversationDoc);
     return newConversationDoc;
   } catch (error) {
     if (error instanceof Error) console.log(error.message);
@@ -645,9 +645,9 @@ export async function updateConversation(
   convoId: string,
   dataToUpate: IUpdateConversation
 ) {
-  console.log("\n-------------- updateConversation() --------------");
-  console.log("\tConversation ID:", convoId);
-  console.log("\tData to update:", dataToUpate);
+  // console.log("\n-------------- updateConversation() --------------");
+  // console.log("\tConversation ID:", convoId);
+  // console.log("\tData to update:", dataToUpate);
 
   // for (const [key, value] of Object.entries(dataToUpate)) {
   //   console.log(`Field: ${key}, Value: ${value}, Type: ${typeof value}`);
@@ -721,7 +721,7 @@ export const sendMessage = async (
   convoDataToUpdate: IUpdateConversation,
   isAnonymous: boolean
 ) => {
-  console.log("\n-------------- sendMessages() --------------");
+  // console.log("\n-------------- sendMessages() --------------");
   try {
     const msgDocId = ID.unique();
 
@@ -740,7 +740,8 @@ export const sendMessage = async (
       const { conversationId, lastMsgSenderName, lastMsgReceiverName } =
         convoDataToUpdate;
 
-      const updatedConvoDoc = await updateConversation(conversationId!, {
+      // const updatedConvoDoc = await updateConversation(conversationId!, {
+      await updateConversation(conversationId!, {
         lastMessageId: msgDocId,
         lastUpdated: createdAt,
         lastMsgIdString: msgDocId,
@@ -749,9 +750,9 @@ export const sendMessage = async (
         lastMsgBody: body,
       });
 
-      console.log("\n\t=========== UDPATED CONVERSATION:", updatedConvoDoc);
+      // console.log("\n\t=========== UDPATED CONVERSATION:", updatedConvoDoc);
     }
-    console.log("\n\t=========== NEW MESSAGE:", newMessage);
+    // console.log("\n\t=========== NEW MESSAGE:", newMessage);
     return newMessage;
   } catch (error) {
     if (error instanceof Error) console.log(error.message);

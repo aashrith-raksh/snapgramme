@@ -92,14 +92,15 @@ const MessagesPanelInput = () => {
     useSendMessageMutation();
 
   async function handleSendMessage() {
-    console.log("\n--------- handleSendMessage() ------------");
+    // console.log("\n--------- handleSendMessage() ------------");
     if (message === "") return;
 
     setMessage("");
 
     let conversationId: string = activeConvoDocId;
+    let newConversation = activeConvoDocId === "";
 
-    if (activeConvoDocId === "") {
+    if (newConversation) {
       const createConversation = async () => {
         const newConvoDetails: INewConversation = {
           conversationId: ID.unique(),
@@ -108,11 +109,11 @@ const MessagesPanelInput = () => {
           lastUpdated: new Date(),
         };
         const newConversation = await createNewConversation(newConvoDetails);
-        conversationId = newConversation!.$id;
+        return newConversation!.$id;
       };
 
       if (!isAnonymous) {
-        await createConversation();
+        conversationId = await createConversation();
         setActiveConvoDocId(conversationId);
       }
     }
@@ -138,6 +139,17 @@ const MessagesPanelInput = () => {
         isAnonymous,
       });
 
+      if (newConversation) {
+        setMsgDocs((prev) => [
+          ...prev,
+          {
+            $id: newMessage!.$id,
+            senderName: user.name,
+            body: newMessage!.body,
+          },
+        ]);
+      }
+
       if (isAnonymous) {
         setMsgDocs((prev) => [
           ...prev,
@@ -149,7 +161,9 @@ const MessagesPanelInput = () => {
         ]);
       }
     } catch (error) {
-      if (error instanceof Error) console.log(error.message);
+      if (error instanceof Error) {
+        // console.log(error.message);
+      }
     }
   }
 

@@ -83,11 +83,15 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
 
   const { user, isAnonymous } = useUserContext();
 
-  const { data: convoMessages, isPending: isLoadingMsgs } =
+  const { data: convoMessages, isPending: isLoadingMsgs, isSuccess:msgsLoadingSuccess } =
     useGetConversationMessages(activeConvoDocId);
 
-  const { data: conversationsObj, isPending: isLoadingConversations } =
-    useGetRecentConversations(user.id);
+  const {
+    data: conversationsObj,
+    isPending: isLoadingConversations,
+    isSuccess:conversationLoadingSuccess,
+    refetch: refetchConverstions,
+  } = useGetRecentConversations(user.id);
 
   const [msgDocs, setMsgDocs] = useState<IMessageDoc[]>([]);
   const [conversations, setConversations] = useState<ILoadedConversations[]>(
@@ -100,8 +104,13 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // console.log("\n======== msgDocs EFFECT =========");
 
-    if (!convoMessages?.documents) {
-      // console.log("\tNo convoMessages found, returning early.");
+    if (isLoadingMsgs) {
+      // console.log("\tConvoMessages still loading... returning early.");
+      return;
+    }
+
+    if(msgsLoadingSuccess && !convoMessages?.documents){
+      // console.log("\tDone loading msgs, no msgs found. Returning early")
       return;
     }
 
@@ -126,7 +135,55 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
 
       // console.log("\tmsgDocs state updated");
     }
-  }, [convoMessages]);
+  }, [convoMessages, activeConvoDocId]);
+
+  /* SET EXISTING CONVERSATIONS OF CURRENT USER
+    To set conversations when conversationObj is available
+    Runs only once when mounted because, the user.id doesn't 
+    change until the next login
+  */
+  useEffect(() => {
+    // console.log("\n============ conversationsObj EFFECT ===========");
+
+    if (isLoadingConversations) {
+      // console.log("\tConversationsObj still loading, returning early.");
+      return;
+    }
+
+    if(conversationLoadingSuccess && !conversationsObj?.documents){
+      // console.log("\tDone loading conversatins, no existing conversations found. Returning early")
+      return;
+    }
+
+    // console.log(
+    //   "\tconversationsObj is available with documents:",
+    //   conversationsObj?.documents
+    // );
+
+    const conversations = conversationsObj?.documents
+      ? [
+          ...conversationsObj?.documents.map((convo) => {
+            const otherParticipant =
+              convo.participant1.$id === user.id
+                ? convo.participant2
+                : convo.participant1;
+
+            return {
+              otherParticipant,
+              $id: convo.$id,
+              lastMessage: convo.lastMsgBody,
+              lastUpdated: multiFormatDateString(convo.lastUpdated),
+            };
+          }),
+        ]
+      : [];
+
+    // console.log("\tMapped conversations:", conversations);
+
+    setConversations(conversations);
+
+    // console.log("\tConversations state updated.");
+  }, [conversationsObj]);
 
   /* SET REALTIME SUBSCRIPTION
       To subscribe to existing conversations and listen to realtime events
@@ -175,48 +232,31 @@ const ConvoProvider = ({ children }: { children: ReactNode }) => {
     };
   }, [conversationsObj, activeConvoDocId]);
 
-  /* SET EXISTING CONVERSATIONS OF CURRENT USER
-    To set conversations when conversationObj is available
-    Runs only once when mounted because, the user.id doesn't 
-    change until the next login
+  /* SET REALTIME SUBSCRIPTION FOR FETCHING NEW CONVERSATIONS
+      To subscribe to conversations collection and listen to 
+      any new conversations that are added, so that conversations can 
+      be refetched again
   */
   useEffect(() => {
-    // console.log("\n============ conversationsObj EFFECT ===========");
+    const unsubscribe = client.subscribe(
+      `databases.${appwriteConfig.databaseId}.collections.${appwriteConfig.conversationsCollectionId}.documents`,
+      (response) => {
+        if (
+          response.events.includes(
+            "databases.*.collections.*.documents.*.create"
+          )
+        ) {
+          console.log("\t> Refetching existing conversations...\n");
+          refetchConverstions();
+        }
+      }
+    );
 
-    if (!conversationsObj?.documents) {
-      // console.log("\tNo conversationsObj or documents found, returning early.");
-      return;
-    }
-
-    // console.log(
-    //   "\tconversationsObj is available with documents:",
-    //   conversationsObj?.documents
-    // );
-
-    const conversations = conversationsObj?.documents
-      ? [
-          ...conversationsObj?.documents.map((convo) => {
-            const otherParticipant =
-              convo.participant1.$id === user.id
-                ? convo.participant2
-                : convo.participant1;
-
-            return {
-              otherParticipant,
-              $id: convo.$id,
-              lastMessage: convo.lastMsgBody,
-              lastUpdated: multiFormatDateString(convo.lastUpdated),
-            };
-          }),
-        ]
-      : [];
-
-    // console.log("\tMapped conversations:", conversations);
-
-    setConversations(conversations);
-
-    // console.log("\tConversations state updated.");
-  }, [conversationsObj]);
+    // Cleanup function to unsubscribe
+    return () => {
+      unsubscribe();
+    };
+  }, []); // Include any dependencies here if needed
 
   const value = {
     receiverName,

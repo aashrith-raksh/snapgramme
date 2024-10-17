@@ -50,6 +50,7 @@ const ConversationsList = () => {
     setReceiverDetails,
     conversations,
     isLoadingConversations,
+    setMsgDocs
   } = useContext(ConvoContext);
 
   const { isAnonymous } = useUserContext();
@@ -65,6 +66,9 @@ const ConversationsList = () => {
     receiverDoc: Models.Document | IReceiverDetails
   ) {
     setActiveConvoDocId(activeConvoDocId);
+    if(activeConvoDocId === ""){
+      setMsgDocs([]);
+    }
 
     let receiverDetails: IReceiverDetails;
 

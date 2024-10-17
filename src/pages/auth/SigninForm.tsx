@@ -65,7 +65,7 @@ const SignInForm = () => {
     const isLoggedIn = await checkAuthUser();
 
     if (isLoggedIn) {
-      console.log("\nlogged In....Redirectig to Homepage");
+      // console.log("\nlogged In....Redirectig to Homepage");
       navigate("/");
     } else {
       toast({
